@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Plato SKU Finder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Tajawal', 'sans-serif'] },
+                    colors: {
+                        bg: '#09090b', surface: '#18181b', surfaceHover: '#27272a', border: '#27272a',
+                        primary: '#3b82f6', primaryHover: '#2563eb', text: '#fafafa', textMuted: '#a1a1aa'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #09090b; color: #fafafa; -webkit-tap-highlight-color: transparent; }
+        .glass { background: rgba(24, 24, 27, 0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .search-ring:focus-within { box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3); border-color: #3b82f6; }
+        .card-hover { transition: all 0.2s ease; }
+        .card-hover:active { transform: scale(0.98); }
+        .fade-in { animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #09090b; }
+        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans antialiased">
+
+    <header class="sticky top-0 z-40 glass">
+        <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-bold text-sm">P</div>
+                <h1 class="text-lg font-bold tracking-tight">Plato Finder</h1>
+            </div>
+            <div class="text-xs text-textMuted bg-surface px-3 py-1 rounded-full border border-border">v3.0</div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-5xl mx-auto px-4 py-6 w-full">
+        <div class="mb-8 space-y-4">
+            <h2 class="text-2xl font-bold text-center">ابحث عن أي عنصر</h2>
+            <div class="relative search-ring rounded-xl transition-all duration-200">
+                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-textMuted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <input type="text" id="searchInput" class="block w-full pr-12 pl-4 py-3.5 bg-surface border border-border rounded-xl text-text placeholder-textMuted focus:outline-none text-base" placeholder="ابحث بالاسم أو SKU (مثال: Rainbow Pop)..." autocomplete="off">
+            </div>
+        </div>
+
+        <div id="loadingState" class="text-center py-16">
+            <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-border border-t-primary mb-4"></div>
+            <p class="text-textMuted text-sm">جارٍ تحميل البيانات...</p>
+        </div>
+
+        <div id="resultsContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4"></div>
+
+        <div id="emptyState" class="hidden text-center py-16">
+            <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-surface mb-4 border border-border">
+                <svg class="w-7 h-7 text-textMuted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <h3 class="text-base font-semibold text-text mb-1">لم يتم العثور على نتائج</h3>
+            <p class="text-textMuted text-sm">جرب البحث بكلمات مختلفة.</p>
+        </div>
+    </main>
+
+    <!-- Modal -->
+    <div id="itemModal" class="fixed inset-0 z-50 hidden">
+        <div class="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity duration-200 opacity-0" id="modalBackdrop" onclick="closeModal()"></div>
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-center justify-center p-4">
+                <div class="relative transform overflow-hidden rounded-2xl bg-surface border border-border text-right shadow-2xl transition-all duration-200 w-full max-w-md opacity-0 translate-y-4 scale-95" id="modalPanel">
+                    <div class="px-5 py-4 border-b border-border flex justify-between items-center bg-bg/50">
+                        <h3 class="text-lg font-bold text-text truncate pl-4" id="modalTitle">اسم العنصر</h3>
+                        <button onclick="closeModal()" class="text-textMuted hover:text-text p-1 rounded-lg hover:bg-surfaceHover transition-colors">
+                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                    </div>
+                    
+                    <div class="p-5 space-y-5">
+                        <div class="flex gap-4">
+                            <div class="w-24 h-24 flex-shrink-0 rounded-xl bg-bg border border-border flex items-center justify-center overflow-hidden">
+                                <img id="modalImage" src="" alt="Item" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                                <div class="hidden w-full h-full items-center justify-center text-textMuted text-xs text-center p-2" id="modalFallback">No Image</div>
+                            </div>
+                            <div class="flex-grow flex flex-col justify-center">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-primary/10 text-primary border border-primary/20 w-fit mb-2 font-mono">SKU: <span id="modalSku"></span></span>
+                                <p id="modalDescription" class="text-textMuted text-sm leading-relaxed line-clamp-3"></p>
+                                <div class="flex items-center gap-1.5 mt-2 text-text font-bold">
+                                    <svg class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6z"/></svg>
+                                    <span id="modalPrice"></span> <span class="text-xs text-textMuted font-normal">عملة</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div class="bg-bg rounded-xl p-3 border border-border">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-medium text-textMuted flex items-center gap-1.5">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                                        رابط iOS
+                                    </span>
+                                    <button onclick="copyToClipboard('iosLink')" class="text-xs bg-surfaceHover hover:bg-border text-text px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 border border-border">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg> نسخ
+                                    </button>
+                                </div>
+                                <a id="iosLink" href="#" target="_blank" class="block w-full text-center bg-primary hover:bg-primaryHover text-white text-sm font-semibold py-2.5 rounded-lg transition-colors">فتح في iOS</a>
+                            </div>
+
+                            <div class="bg-bg rounded-xl p-3 border border-border">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-medium text-textMuted flex items-center gap-1.5">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993.0001.5511-.4482.9997-.9993.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993 0 .5511-.4482.9997-.9993.9997m11.4045-6.02l1.9973-3.4592a.416.416 0 00-.1521-.5676.416.416 0 00-.5676.1521l-2.0225 3.503C15.5902 8.4796 13.8532 8.1193 12 8.1193c-1.8532 0-3.5902.3603-5.1367.9704L4.8408 5.5867a.4161.4161 0 00-.5676-.1521.4157.4157 0 00-.1521.5676l1.9973 3.4592C2.6889 11.1867.3432 14.6589.3432 18.6617h23.3136c0-4.0028-2.3457-7.475-5.462-9.3403"/></svg>
+                                        رابط Android
+                                    </span>
+                                    <button onclick="copyToClipboard('androidLink')" class="text-xs bg-surfaceHover hover:bg-border text-text px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 border border-border">
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg> نسخ
+                                    </button>
+                                </div>
+                                <a id="androidLink" href="#" target="_blank" class="block w-full text-center bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold py-2.5 rounded-lg transition-colors">فتح في Android</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-surface border border-border text-text px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 opacity-0 translate-y-10 z-50 pointer-events-none">
+        <svg class="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+        <span id="toastMessage" class="text-sm font-medium">تم النسخ بنجاح!</span>
+    </div>
+
+    <script>
+        // =========================================================
+        // تحميل البيانات ديناميكيًا من ملف plato_items.json
+        // =========================================================
+        let platoData = [];
+        
+        const searchInput = document.getElementById('searchInput');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const emptyState = document.getElementById('emptyState');
+        const loadingState = document.getElementById('loadingState');
+        const modal = document.getElementById('itemModal');
+        const modalBackdrop = document.getElementById('modalBackdrop');
+        const modalPanel = document.getElementById('modalPanel');
+
+        // المعالج الذكي للمسارات: يضمن أن جميع المسارات تبدأ بـ iap/
+        function getImagePath(imgName) {
+            if (!imgName || imgName.trim() === '' || imgName.toLowerCase() === 'nan') {
+                return null;
+            }
+            let cleanName = imgName.replace(/^\/+/, '');
+            if (!cleanName.startsWith('iap/')) {
+                return 'iap/' + cleanName;
+            }
+            return cleanName;
+        }
+
+        // تحميل البيانات من JSON
+        async function loadData() {
+            try {
+                const res = await fetch('plato_items.json');
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                platoData = await res.json();
+                
+                if (!Array.isArray(platoData)) {
+                    throw new Error('صيغة JSON غير صحيحة (ليست مصفوفة)');
+                }
+                
+                loadingState.classList.add('hidden');
+                renderResults(platoData.slice(0, 60));
+                console.log('تم تحميل ' + platoData.length + ' عنصر بنجاح');
+            } catch (err) {
+                console.error('فشل تحميل البيانات:', err);
+                loadingState.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                emptyState.querySelector('h3').textContent = 'تعذر تحميل البيانات';
+                emptyState.querySelector('p').textContent = 'تأكد من وجود plato_items.json بجانب index.html، وشغّل الموقع عبر HTTP (GitHub Pages أو سيرفر محلي).';
+            }
+        }
+
+        function renderResults(items) {
+            resultsContainer.innerHTML = '';
+            if (items.length === 0) {
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+            
+            const displayItems = items.slice(0, 60);
+            
+            displayItems.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'glass rounded-xl p-3 card-hover cursor-pointer fade-in border border-border hover:border-primary/30';
+                card.onclick = () => openModal(item);
+                
+                const imgPath = getImagePath(item.img1);
+                const hasImage = imgPath !== null;
+                
+                card.innerHTML = `
+                    <div class="aspect-square rounded-lg bg-bg border border-border mb-3 overflow-hidden relative flex items-center justify-center">
+                        ${hasImage ? `<img src="${imgPath}" alt="${item.name}" loading="lazy" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">` : ''}
+                        <div class="${hasImage ? 'hidden' : 'flex'} w-full h-full flex-col items-center justify-center text-textMuted p-2 text-center">
+                            <svg class="w-8 h-8 mb-1 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            <span class="text-xs font-medium leading-tight">${item.name}</span>
+                        </div>
+                    </div>
+                    <h3 class="text-text font-semibold text-sm mb-1 truncate">${item.name}</h3>
+                    <div class="flex items-center justify-between">
+                        <span class="text-textMuted text-xs font-mono bg-surface px-1.5 py-0.5 rounded border border-border">SKU: ${item.sku}</span>
+                        <span class="text-primary text-xs font-bold">${Number(item.price).toLocaleString()} 🪙</span>
+                    </div>
+                `;
+                resultsContainer.appendChild(card);
+            });
+            
+            if (items.length > 60) {
+                const moreMsg = document.createElement('div');
+                moreMsg.className = 'col-span-full text-center text-textMuted py-6 text-sm';
+                moreMsg.textContent = `عرض أول 60 نتيجة من أصل ${items.length}. حدد بحثك للمزيد.`;
+                resultsContainer.appendChild(moreMsg);
+            }
+        }
+
+        function openModal(item) {
+            document.getElementById('modalTitle').textContent = item.name;
+            document.getElementById('modalSku').textContent = item.sku;
+            document.getElementById('modalDescription').textContent = item.description || 'لا يوجد وصف متاح.';
+            document.getElementById('modalPrice').textContent = Number(item.price).toLocaleString();
+            
+            const imgPath = getImagePath(item.img1);
+            const modalImg = document.getElementById('modalImage');
+            const modalFallback = document.getElementById('modalFallback');
+            
+            if (imgPath) {
+                modalImg.src = imgPath;
+                modalImg.style.display = 'block';
+                modalFallback.style.display = 'none';
+            } else {
+                modalImg.style.display = 'none';
+                modalFallback.style.display = 'flex';
+                modalFallback.textContent = 'لا توجد صورة متاحة';
+            }
+            
+            const iosUrl = `https://platoapp.co/navigate/item?sku=${item.sku}`;
+            const androidUrl = `https://platoapp.com/navigate/item?sku=${item.sku}`;
+            
+            document.getElementById('iosLink').href = iosUrl;
+            document.getElementById('androidLink').href = androidUrl;
+            document.getElementById('iosLink').dataset.url = iosUrl;
+            document.getElementById('androidLink').dataset.url = androidUrl;
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modalBackdrop.classList.remove('opacity-0');
+                modalPanel.classList.remove('opacity-0', 'translate-y-4', 'scale-95');
+                modalPanel.classList.add('opacity-100', 'translate-y-0', 'scale-100');
+            }, 10);
+        }
+
+        function closeModal() {
+            modalBackdrop.classList.add('opacity-0');
+            modalPanel.classList.remove('opacity-100', 'translate-y-0', 'scale-100');
+            modalPanel.classList.add('opacity-0', 'translate-y-4', 'scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); }, 200);
+        }
+
+        function copyToClipboard(elementId) {
+            const url = document.getElementById(elementId).dataset.url;
+            navigator.clipboard.writeText(url).then(() => {
+                showToast('تم نسخ الرابط بنجاح!');
+            }).catch(() => {
+                showToast('فشل النسخ، يرجى المحاولة يدوياً.');
+            });
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').textContent = message;
+            toast.classList.remove('opacity-0', 'translate-y-10');
+            setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-10'); }, 2000);
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            if (!query) {
+                renderResults(platoData.slice(0, 60));
+                return;
+            }
+            const filtered = platoData.filter(item => 
+                (item.name && item.name.toLowerCase().includes(query)) || 
+                (item.sku && String(item.sku).includes(query))
+            );
+            renderResults(filtered);
+        });
+
+        modalBackdrop.addEventListener('click', closeModal);
+
+        // بدء التحميل
+        loadData();
+    </script>
+</body>
+</html>
