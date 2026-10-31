@@ -41,6 +41,7 @@
         input[type=number] { -moz-appearance: textfield; }
         .coin-img { width: 1rem; height: 1rem; object-fit: contain; display: inline-block; vertical-align: middle; }
         .coin-img-lg { width: 1.25rem; height: 1.25rem; object-fit: contain; display: inline-block; vertical-align: middle; }
+        textarea { resize: none; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans antialiased">
@@ -174,26 +175,23 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="space-y-3">
-                            <div class="bg-bg rounded-xl p-3 border border-border">
-                                <div class="flex items-center justify-between gap-2 mb-2">
-                                    <span class="text-xs font-medium text-textMuted" data-i18n="iosLink">رابط iOS</span>
-                                    <button onclick="copyToClipboard('iosLink')" class="text-xs bg-surfaceHover hover:bg-border text-text px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 border border-border">
-                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-                                        <span data-i18n="copy">نسخ</span>
-                                    </button>
-                                </div>
-                                <a id="iosLink" href="#" target="_blank" class="block w-full text-center bg-primary hover:bg-primaryHover text-white text-sm font-semibold py-2.5 rounded-lg transition-colors" data-i18n="openIOS">فتح في iOS</a>
+
+                        <div class="bg-bg rounded-xl p-4 border border-border space-y-3">
+                            <div>
+                                <label for="customMessage" class="text-xs font-medium text-textMuted block mb-2">
+                                    <span data-i18n="customMessage">رسالة مخصصة (اختياري)</span>
+                                </label>
+                                <textarea id="customMessage" rows="2" class="w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm text-text placeholder-textMuted focus:outline-none focus:border-primary" placeholder="" data-i18n-placeholder="customMessagePlaceholder"></textarea>
                             </div>
-                            <div class="bg-bg rounded-xl p-3 border border-border">
-                                <div class="flex items-center justify-between gap-2 mb-2">
-                                    <span class="text-xs font-medium text-textMuted" data-i18n="androidLink">رابط Android</span>
-                                    <button onclick="copyToClipboard('androidLink')" class="text-xs bg-surfaceHover hover:bg-border text-text px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 border border-border">
-                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-                                        <span data-i18n="copy">نسخ</span>
-                                    </button>
-                                </div>
-                                <a id="androidLink" href="#" target="_blank" class="block w-full text-center bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold py-2.5 rounded-lg transition-colors" data-i18n="openAndroid">فتح في Android</a>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="openItemLink()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-1.5">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                                    <span data-i18n="openLink">فتح الرابط</span>
+                                </button>
+                                <button onclick="copyLinkWithMessage()" class="bg-primary hover:bg-primaryHover text-white text-sm font-semibold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-1.5">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                    <span data-i18n="copyLink">نسخ الرابط</span>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -224,9 +222,10 @@
             resetFilters: "إعادة تعيين الفلاتر", loadMore: "عرض المزيد",
             showing: "عرض", of: "من", items: "عنصر",
             noDescription: "لا يوجد وصف متاح.", priceLabel: "عملة",
-            iosLink: "رابط iOS", androidLink: "رابط Android",
-            openIOS: "فتح في iOS", openAndroid: "فتح في Android",
-            copy: "نسخ", copied: "تم النسخ بنجاح!", copyFailed: "فشل النسخ",
+            customMessage: "رسالة مخصصة (اختياري)",
+            customMessagePlaceholder: "اكتب رسالتك هنا...",
+            openLink: "فتح الرابط", copyLink: "نسخ الرابط",
+            copied: "تم النسخ بنجاح!", copyFailed: "فشل النسخ",
             noImage: "لا توجد صورة متاحة",
             categories: { all: "الكل", badges: "الشارات", banners: "البانرات", frames: "الإطارات", bubbles: "الفقاعات", bundles: "الحزم", gameupgrades: "ترقيات الألعاب", mods: "المودات", pips: "النقاط", items: "العناصر", other: "أخرى" }
         },
@@ -245,9 +244,10 @@
             resetFilters: "Reset filters", loadMore: "Load more",
             showing: "Showing", of: "of", items: "items",
             noDescription: "No description available.", priceLabel: "coins",
-            iosLink: "iOS Link", androidLink: "Android Link",
-            openIOS: "Open in iOS", openAndroid: "Open in Android",
-            copy: "Copy", copied: "Copied successfully!", copyFailed: "Copy failed",
+            customMessage: "Custom message (optional)",
+            customMessagePlaceholder: "Type your message here...",
+            openLink: "Open Link", copyLink: "Copy Link",
+            copied: "Copied successfully!", copyFailed: "Copy failed",
             noImage: "No image available",
             categories: { all: "All", badges: "Badges", banners: "Banners", frames: "Frames", bubbles: "Bubbles", bundles: "Bundles", gameupgrades: "Game Upgrades", mods: "Mods", pips: "Pips", items: "Items", other: "Other" }
         },
@@ -266,9 +266,10 @@
             resetFilters: "Réinitialiser les filtres", loadMore: "Voir plus",
             showing: "Affichage de", of: "sur", items: "articles",
             noDescription: "Aucune description disponible.", priceLabel: "pièces",
-            iosLink: "Lien iOS", androidLink: "Lien Android",
-            openIOS: "Ouvrir dans iOS", openAndroid: "Ouvrir dans Android",
-            copy: "Copier", copied: "Copié avec succès!", copyFailed: "Échec de la copie",
+            customMessage: "Message personnalisé (facultatif)",
+            customMessagePlaceholder: "Écrivez votre message ici...",
+            openLink: "Ouvrir le lien", copyLink: "Copier le lien",
+            copied: "Copié avec succès!", copyFailed: "Échec de la copie",
             noImage: "Aucune image disponible",
             categories: { all: "Tous", badges: "Badges", banners: "Bannières", frames: "Cadres", bubbles: "Bulles", bundles: "Paquets", gameupgrades: "Améliorations de jeu", mods: "Mods", pips: "Points", items: "Articles", other: "Autres" }
         },
@@ -287,9 +288,10 @@
             resetFilters: "بازنشانی فیلترها", loadMore: "بیشتر",
             showing: "نمایش", of: "از", items: "آیتم",
             noDescription: "توضیحی موجود نیست.", priceLabel: "سکه",
-            iosLink: "لینک iOS", androidLink: "لینک Android",
-            openIOS: "باز کردن در iOS", openAndroid: "باز کردن در Android",
-            copy: "کپی", copied: "با موفقیت کپی شد!", copyFailed: "کپی ناموفق",
+            customMessage: "پیام سفارشی (اختیاری)",
+            customMessagePlaceholder: "پیام خود را اینجا بنویسید...",
+            openLink: "باز کردن لینک", copyLink: "کپی لینک",
+            copied: "با موفقیت کپی شد!", copyFailed: "کپی ناموفق",
             noImage: "تصویری موجود نیست",
             categories: { all: "همه", badges: "نشان‌ها", banners: "بنرها", frames: "قاب‌ها", bubbles: "حباب‌ها", bundles: "بسته‌ها", gameupgrades: "ارتقاهای بازی", mods: "مودها", pips: "امتیازها", items: "آیتم‌ها", other: "سایر" }
         },
@@ -308,9 +310,10 @@
             resetFilters: "Redefinir filtros", loadMore: "Carregar mais",
             showing: "Mostrando", of: "de", items: "itens",
             noDescription: "Nenhuma descrição disponível.", priceLabel: "moedas",
-            iosLink: "Link iOS", androidLink: "Link Android",
-            openIOS: "Abrir no iOS", openAndroid: "Abrir no Android",
-            copy: "Copiar", copied: "Copiado com sucesso!", copyFailed: "Falha ao copiar",
+            customMessage: "Mensagem personalizada (opcional)",
+            customMessagePlaceholder: "Digite sua mensagem aqui...",
+            openLink: "Abrir link", copyLink: "Copiar link",
+            copied: "Copiado com sucesso!", copyFailed: "Falha ao copiar",
             noImage: "Sem imagem disponível",
             categories: { all: "Todos", badges: "Emblemas", banners: "Banners", frames: "Molduras", bubbles: "Bolhas", bundles: "Pacotes", gameupgrades: "Melhorias de jogo", mods: "Mods", pips: "Pontos", items: "Itens", other: "Outros" }
         },
@@ -329,9 +332,10 @@
             resetFilters: "重置筛选", loadMore: "加载更多",
             showing: "显示", of: "/", items: "项",
             noDescription: "暂无描述。", priceLabel: "金币",
-            iosLink: "iOS链接", androidLink: "Android链接",
-            openIOS: "在iOS中打开", openAndroid: "在Android中打开",
-            copy: "复制", copied: "复制成功!", copyFailed: "复制失败",
+            customMessage: "自定义消息（可选）",
+            customMessagePlaceholder: "在此输入您的消息...",
+            openLink: "打开链接", copyLink: "复制链接",
+            copied: "复制成功!", copyFailed: "复制失败",
             noImage: "无图片",
             categories: { all: "全部", badges: "徽章", banners: "横幅", frames: "边框", bubbles: "气泡", bundles: "礼包", gameupgrades: "游戏升级", mods: "模组", pips: "点数", items: "物品", other: "其他" }
         },
@@ -350,9 +354,10 @@
             resetFilters: "Filtreleri sıfırla", loadMore: "Daha fazla",
             showing: "Gösterilen", of: "/", items: "öğe",
             noDescription: "Açıklama yok.", priceLabel: "jeton",
-            iosLink: "iOS Bağlantısı", androidLink: "Android Bağlantısı",
-            openIOS: "iOS'ta Aç", openAndroid: "Android'de Aç",
-            copy: "Kopyala", copied: "Başarıyla kopyalandı!", copyFailed: "Kopyalama başarısız",
+            customMessage: "Özel mesaj (isteğe bağlı)",
+            customMessagePlaceholder: "Mesajınızı buraya yazın...",
+            openLink: "Bağlantıyı aç", copyLink: "Bağlantıyı kopyala",
+            copied: "Başarıyla kopyalandı!", copyFailed: "Kopyalama başarısız",
             noImage: "Görsel yok",
             categories: { all: "Tümü", badges: "Rozetler", banners: "Bannerlar", frames: "Çerçeveler", bubbles: "Balonlar", bundles: "Paketler", gameupgrades: "Oyun Yükseltmeleri", mods: "Modlar", pips: "Puanlar", items: "Öğeler", other: "Diğer" }
         }
@@ -364,6 +369,7 @@
     let currentFilters = { category: 'all', sortBy: 'nameAsc', minPrice: null, maxPrice: null, query: '' };
     let visibleLimit = 60;
     let filteredItems = [];
+    let currentItemUrl = '';
 
     const searchInput = document.getElementById('searchInput');
     const resultsContainer = document.getElementById('resultsContainer');
@@ -382,7 +388,6 @@
         return cleanName;
     }
 
-    // اختيار صورة الكوينز حسب حجم المبلغ
     function getCoinImage(price) {
         const p = Number(price) || 0;
         if (p < 1000) return 'iap/iap_platocoins_bundle_s.webp';
@@ -624,12 +629,9 @@
             modalFallback.style.display = 'flex';
             modalFallback.textContent = tr.noImage;
         }
-        const iosUrl = `https://platoapp.co/navigate/item?sku=${item.sku}`;
-        const androidUrl = `https://platoapp.com/navigate/item?sku=${item.sku}`;
-        document.getElementById('iosLink').href = iosUrl;
-        document.getElementById('androidLink').href = androidUrl;
-        document.getElementById('iosLink').dataset.url = iosUrl;
-        document.getElementById('androidLink').dataset.url = androidUrl;
+        // رابط واحد لكل النظامين (Android + iOS)
+        currentItemUrl = `https://platoapp.com/navigate/item?sku=${item.sku}`;
+        document.getElementById('customMessage').value = '';
         modal.classList.remove('hidden');
         setTimeout(() => {
             modalBackdrop.classList.remove('opacity-0');
@@ -645,9 +647,27 @@
         setTimeout(() => modal.classList.add('hidden'), 200);
     }
 
-    function copyToClipboard(elementId) {
-        const url = document.getElementById(elementId).dataset.url;
-        navigator.clipboard.writeText(url).then(() => showToast(t('copied'))).catch(() => showToast(t('copyFailed')));
+    // فتح الرابط مباشرة (بدون رسالة)
+    function openItemLink() {
+        if (currentItemUrl) window.open(currentItemUrl, '_blank');
+    }
+
+    // نسخ الرابط + الرسالة (إن وجدت)
+    function copyLinkWithMessage() {
+        const msg = (document.getElementById('customMessage').value || '').trim();
+        const text = msg ? `${msg}\n${currentItemUrl}` : currentItemUrl;
+        navigator.clipboard.writeText(text).then(() => {
+            showToast(t('copied'));
+        }).catch(() => {
+            // fallback
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            document.body.appendChild(ta);
+            ta.select();
+            try { document.execCommand('copy'); showToast(t('copied')); }
+            catch (_) { showToast(t('copyFailed')); }
+            document.body.removeChild(ta);
+        });
     }
 
     function showToast(msg) {
