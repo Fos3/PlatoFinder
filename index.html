@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Plato SKU Finder</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&family=Vazirmatn:wght@300;400;500;700;800&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Tajawal', 'sans-serif'] },
+                    fontFamily: { sans: ['Tajawal', 'Vazirmatn', 'Noto Sans SC', 'sans-serif'] },
                     colors: {
                         bg: '#09090b', surface: '#18181b', surfaceHover: '#27272a', border: '#27272a',
                         primary: '#3b82f6', primaryHover: '#2563eb', text: '#fafafa', textMuted: '#a1a1aa'
@@ -30,36 +30,140 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #09090b; }
         ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
+
+        /* Category chips - plain CSS (Tailwind CDN doesn't support @apply in <style>) */
+        .cat-chip {
+            padding: 0.375rem 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border-width: 1px;
+            border-style: solid;
+            transition: all 0.15s;
+            cursor: pointer;
+            background-color: #18181b;
+            border-color: #27272a;
+            color: #a1a1aa;
+            white-space: nowrap;
+        }
+        .cat-chip:hover { background-color: #27272a; color: #fafafa; }
+        .cat-chip.active { background-color: rgba(59, 130, 246, 0.2); border-color: #3b82f6; color: #3b82f6; }
+
+        /* Custom select arrow */
+        select {
+            -webkit-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23a1a1aa'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: left 0.5rem center;
+            background-size: 1rem;
+            padding-left: 2rem;
+            padding-right: 0.75rem;
+        }
+        [dir="ltr"] select {
+            background-position: right 0.5rem center;
+            padding-left: 0.75rem;
+            padding-right: 2rem;
+        }
+
+        /* LTR overrides */
+        [dir="ltr"] .search-icon-wrapper { right: auto; left: 0; padding-right: 0; padding-left: 1rem; }
+        [dir="ltr"] #searchInput { padding-right: 1rem; padding-left: 3rem; }
+
+        /* Hide number spinners */
+        input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
+        /* Smooth transitions */
+        .lang-transition { transition: opacity 0.2s ease; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans antialiased">
 
     <header class="sticky top-0 z-40 glass">
-        <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-bold text-sm">P</div>
-                <h1 class="text-lg font-bold tracking-tight">Plato Finder</h1>
+        <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3 min-w-0">
+                <img src="Logo.jpg" alt="Plato Finder" class="w-9 h-9 rounded-lg object-cover border border-border flex-shrink-0" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+                <div class="hidden w-9 h-9 rounded-lg bg-primary items-center justify-center text-white font-bold text-sm flex-shrink-0">P</div>
+                <h1 class="text-lg font-bold tracking-tight truncate" data-i18n="appName">Plato Finder</h1>
             </div>
-            <div class="text-xs text-textMuted bg-surface px-3 py-1 rounded-full border border-border">v3.0</div>
+            <select id="langSelect" class="bg-surface border border-border rounded-lg px-2 py-1.5 text-xs text-text focus:outline-none focus:border-primary flex-shrink-0">
+                <option value="ar">🇸🇦 العربية</option>
+                <option value="en">🇬🇧 English</option>
+                <option value="fr">🇫🇷 Français</option>
+                <option value="fa">🇮🇷 فارسی</option>
+                <option value="pt">🇵🇹 Português</option>
+                <option value="zh">🇨🇳 中文</option>
+            </select>
         </div>
     </header>
 
     <main class="flex-grow max-w-5xl mx-auto px-4 py-6 w-full">
-        <div class="mb-8 space-y-4">
-            <h2 class="text-2xl font-bold text-center">ابحث عن أي عنصر</h2>
+
+        <div class="mb-6 space-y-4">
+            <h2 class="text-2xl font-bold text-center" data-i18n="searchTitle">ابحث عن أي عنصر</h2>
+
             <div class="relative search-ring rounded-xl transition-all duration-200">
-                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+                <div class="search-icon-wrapper absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
                     <svg class="h-5 w-5 text-textMuted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </div>
-                <input type="text" id="searchInput" class="block w-full pr-12 pl-4 py-3.5 bg-surface border border-border rounded-xl text-text placeholder-textMuted focus:outline-none text-base" placeholder="ابحث بالاسم أو SKU (مثال: Rainbow Pop)..." autocomplete="off">
+                <input type="text" id="searchInput" class="block w-full pr-12 pl-4 py-3.5 bg-surface border border-border rounded-xl text-text placeholder-textMuted focus:outline-none text-base" placeholder="" autocomplete="off">
+            </div>
+
+            <button onclick="toggleFilters()" class="w-full flex items-center justify-between bg-surface border border-border rounded-xl px-4 py-3 text-sm hover:bg-surfaceHover transition-colors">
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-textMuted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
+                    <span data-i18n="filters">الفلاتر</span>
+                    <span id="filterCount" class="hidden bg-primary text-white text-xs px-2 py-0.5 rounded-full font-bold">0</span>
+                </div>
+                <svg id="filterChevron" class="w-4 h-4 text-textMuted transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+
+            <div id="filterContent" class="hidden bg-surface border border-border rounded-xl p-4 space-y-4">
+                <div>
+                    <label class="text-xs font-medium text-textMuted mb-2 block" data-i18n="category">الفئة</label>
+                    <div id="categoryChips" class="flex flex-wrap gap-2"></div>
+                </div>
+
+                <div>
+                    <label class="text-xs font-medium text-textMuted mb-2 block" data-i18n="sortBy">الترتيب</label>
+                    <select id="sortSelect" class="w-full bg-bg border border-border rounded-lg px-3 py-2 text-sm text-text focus:outline-none focus:border-primary">
+                        <option value="nameAsc" data-i18n="sortNameAsc">الاسم (أ-ي)</option>
+                        <option value="nameDesc" data-i18n="sortNameDesc">الاسم (ي-أ)</option>
+                        <option value="priceAsc" data-i18n="sortPriceAsc">السعر (الأقل أولًا)</option>
+                        <option value="priceDesc" data-i18n="sortPriceDesc">السعر (الأعلى أولًا)</option>
+                        <option value="skuAsc" data-i18n="sortSkuAsc">SKU (تصاعدي)</option>
+                        <option value="skuDesc" data-i18n="sortSkuDesc">SKU (تنازلي)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="text-xs font-medium text-textMuted mb-2 block" data-i18n="priceRange">نطاق السعر</label>
+                    <div class="flex gap-2 items-center">
+                        <input type="number" id="minPrice" class="flex-1 bg-bg border border-border rounded-lg px-3 py-2 text-sm text-text focus:outline-none focus:border-primary" data-i18n-placeholder="minPrice" placeholder="الأدنى">
+                        <span class="text-textMuted text-xs">—</span>
+                        <input type="number" id="maxPrice" class="flex-1 bg-bg border border-border rounded-lg px-3 py-2 text-sm text-text focus:outline-none focus:border-primary" data-i18n-placeholder="maxPrice" placeholder="الأعلى">
+                    </div>
+                </div>
+
+                <button onclick="resetFilters()" class="w-full bg-surfaceHover hover:bg-border text-text text-sm py-2 rounded-lg transition-colors flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <span data-i18n="resetFilters">إعادة تعيين الفلاتر</span>
+                </button>
             </div>
         </div>
 
         <div id="loadingState" class="text-center py-16">
             <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-border border-t-primary mb-4"></div>
-            <p class="text-textMuted text-sm">جارٍ تحميل البيانات...</p>
+            <p class="text-textMuted text-sm" data-i18n="loading">جارٍ تحميل البيانات...</p>
         </div>
 
         <div id="resultsContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4"></div>
@@ -70,65 +174,69 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
             </div>
-            <h3 class="text-base font-semibold text-text mb-1">لم يتم العثور على نتائج</h3>
-            <p class="text-textMuted text-sm">جرب البحث بكلمات مختلفة.</p>
+            <h3 class="text-base font-semibold text-text mb-1" id="emptyTitle" data-i18n="noResults">لم يتم العثور على نتائج</h3>
+            <p class="text-textMuted text-sm" id="emptyHint" data-i18n="noResultsHint">جرب البحث بكلمات مختلفة.</p>
+        </div>
+
+        <div id="resultsInfo" class="hidden text-center text-textMuted text-xs mt-6"></div>
+
+        <div id="loadMoreWrapper" class="hidden text-center mt-6">
+            <button onclick="loadMore()" class="bg-surface hover:bg-surfaceHover border border-border text-text text-sm font-medium px-6 py-2.5 rounded-xl transition-colors">
+                <span data-i18n="loadMore">عرض المزيد</span>
+            </button>
         </div>
     </main>
 
-    <!-- Modal -->
     <div id="itemModal" class="fixed inset-0 z-50 hidden">
-        <div class="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity duration-200 opacity-0" id="modalBackdrop" onclick="closeModal()"></div>
+        <div class="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity duration-200 opacity-0" id="modalBackdrop"></div>
         <div class="fixed inset-0 z-10 overflow-y-auto">
-            <div class="flex min-h-full items-center justify-center p-4">
-                <div class="relative transform overflow-hidden rounded-2xl bg-surface border border-border text-right shadow-2xl transition-all duration-200 w-full max-w-md opacity-0 translate-y-4 scale-95" id="modalPanel">
-                    <div class="px-5 py-4 border-b border-border flex justify-between items-center bg-bg/50">
-                        <h3 class="text-lg font-bold text-text truncate pl-4" id="modalTitle">اسم العنصر</h3>
-                        <button onclick="closeModal()" class="text-textMuted hover:text-text p-1 rounded-lg hover:bg-surfaceHover transition-colors">
+            <div class="flex min-h-full items-center justify-center p-4" onclick="if(event.target===this) closeModal()">
+                <div class="relative transform overflow-hidden rounded-2xl bg-surface border border-border shadow-2xl transition-all duration-200 w-full max-w-md opacity-0 translate-y-4 scale-95" id="modalPanel">
+                    <div class="px-5 py-4 border-b border-border flex justify-between items-center gap-3 bg-bg/50">
+                        <h3 class="text-lg font-bold text-text truncate flex-1" id="modalTitle">...</h3>
+                        <button onclick="closeModal()" class="text-textMuted hover:text-text p-1 rounded-lg hover:bg-surfaceHover transition-colors flex-shrink-0">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                         </button>
                     </div>
-                    
+
                     <div class="p-5 space-y-5">
                         <div class="flex gap-4">
                             <div class="w-24 h-24 flex-shrink-0 rounded-xl bg-bg border border-border flex items-center justify-center overflow-hidden">
                                 <img id="modalImage" src="" alt="Item" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
                                 <div class="hidden w-full h-full items-center justify-center text-textMuted text-xs text-center p-2" id="modalFallback">No Image</div>
                             </div>
-                            <div class="flex-grow flex flex-col justify-center">
+                            <div class="flex-grow flex flex-col justify-center min-w-0">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-primary/10 text-primary border border-primary/20 w-fit mb-2 font-mono">SKU: <span id="modalSku"></span></span>
                                 <p id="modalDescription" class="text-textMuted text-sm leading-relaxed line-clamp-3"></p>
                                 <div class="flex items-center gap-1.5 mt-2 text-text font-bold">
                                     <svg class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6z"/></svg>
-                                    <span id="modalPrice"></span> <span class="text-xs text-textMuted font-normal">عملة</span>
+                                    <span id="modalPrice"></span>
+                                    <span class="text-xs text-textMuted font-normal" id="modalPriceLabel">عملة</span>
                                 </div>
                             </div>
                         </div>
 
                         <div class="space-y-3">
                             <div class="bg-bg rounded-xl p-3 border border-border">
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="text-xs font-medium text-textMuted flex items-center gap-1.5">
-                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-                                        رابط iOS
-                                    </span>
+                                <div class="flex items-center justify-between gap-2 mb-2">
+                                    <span class="text-xs font-medium text-textMuted" data-i18n="iosLink">رابط iOS</span>
                                     <button onclick="copyToClipboard('iosLink')" class="text-xs bg-surfaceHover hover:bg-border text-text px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 border border-border">
-                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg> نسخ
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                        <span data-i18n="copy">نسخ</span>
                                     </button>
                                 </div>
-                                <a id="iosLink" href="#" target="_blank" class="block w-full text-center bg-primary hover:bg-primaryHover text-white text-sm font-semibold py-2.5 rounded-lg transition-colors">فتح في iOS</a>
+                                <a id="iosLink" href="#" target="_blank" class="block w-full text-center bg-primary hover:bg-primaryHover text-white text-sm font-semibold py-2.5 rounded-lg transition-colors" data-i18n="openIOS">فتح في iOS</a>
                             </div>
 
                             <div class="bg-bg rounded-xl p-3 border border-border">
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="text-xs font-medium text-textMuted flex items-center gap-1.5">
-                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993.0001.5511-.4482.9997-.9993.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993 0 .5511-.4482.9997-.9993.9997m11.4045-6.02l1.9973-3.4592a.416.416 0 00-.1521-.5676.416.416 0 00-.5676.1521l-2.0225 3.503C15.5902 8.4796 13.8532 8.1193 12 8.1193c-1.8532 0-3.5902.3603-5.1367.9704L4.8408 5.5867a.4161.4161 0 00-.5676-.1521.4157.4157 0 00-.1521.5676l1.9973 3.4592C2.6889 11.1867.3432 14.6589.3432 18.6617h23.3136c0-4.0028-2.3457-7.475-5.462-9.3403"/></svg>
-                                        رابط Android
-                                    </span>
+                                <div class="flex items-center justify-between gap-2 mb-2">
+                                    <span class="text-xs font-medium text-textMuted" data-i18n="androidLink">رابط Android</span>
                                     <button onclick="copyToClipboard('androidLink')" class="text-xs bg-surfaceHover hover:bg-border text-text px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 border border-border">
-                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg> نسخ
+                                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                        <span data-i18n="copy">نسخ</span>
                                     </button>
                                 </div>
-                                <a id="androidLink" href="#" target="_blank" class="block w-full text-center bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold py-2.5 rounded-lg transition-colors">فتح في Android</a>
+                                <a id="androidLink" href="#" target="_blank" class="block w-full text-center bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold py-2.5 rounded-lg transition-colors" data-i18n="openAndroid">فتح في Android</a>
                             </div>
                         </div>
                     </div>
@@ -139,177 +247,620 @@
 
     <div id="toast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-surface border border-border text-text px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 opacity-0 translate-y-10 z-50 pointer-events-none">
         <svg class="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-        <span id="toastMessage" class="text-sm font-medium">تم النسخ بنجاح!</span>
+        <span id="toastMessage" class="text-sm font-medium">...</span>
     </div>
 
     <script>
-        // =========================================================
-        // تحميل البيانات ديناميكيًا من ملف plato_items.json
-        // =========================================================
-        let platoData = [];
-        
-        const searchInput = document.getElementById('searchInput');
-        const resultsContainer = document.getElementById('resultsContainer');
-        const emptyState = document.getElementById('emptyState');
-        const loadingState = document.getElementById('loadingState');
-        const modal = document.getElementById('itemModal');
-        const modalBackdrop = document.getElementById('modalBackdrop');
-        const modalPanel = document.getElementById('modalPanel');
-
-        // المعالج الذكي للمسارات: يضمن أن جميع المسارات تبدأ بـ iap/
-        function getImagePath(imgName) {
-            if (!imgName || imgName.trim() === '' || imgName.toLowerCase() === 'nan') {
-                return null;
-            }
-            let cleanName = imgName.replace(/^\/+/, '');
-            if (!cleanName.startsWith('iap/')) {
-                return 'iap/' + cleanName;
-            }
-            return cleanName;
+    // ==================== TRANSLATIONS ====================
+    const translations = {
+        ar: {
+            appName: "Plato Finder",
+            searchTitle: "ابحث عن أي عنصر",
+            searchPlaceholder: "ابحث بالاسم أو SKU (مثال: Rainbow Pop)...",
+            loading: "جارٍ تحميل البيانات...",
+            noResults: "لم يتم العثور على نتائج",
+            noResultsHint: "جرب البحث بكلمات مختلفة أو غيّر الفلاتر.",
+            loadError: "تعذر تحميل البيانات",
+            loadErrorHint: "تأكد من وجود plato_items.json بجانب index.html، وشغّل الموقع عبر HTTP.",
+            filters: "الفلاتر",
+            category: "الفئة",
+            sortBy: "الترتيب",
+            sortNameAsc: "الاسم (أ-ي)",
+            sortNameDesc: "الاسم (ي-أ)",
+            sortPriceAsc: "السعر (الأقل أولًا)",
+            sortPriceDesc: "السعر (الأعلى أولًا)",
+            sortSkuAsc: "SKU (تصاعدي)",
+            sortSkuDesc: "SKU (تنازلي)",
+            priceRange: "نطاق السعر",
+            minPrice: "الأدنى",
+            maxPrice: "الأعلى",
+            resetFilters: "إعادة تعيين الفلاتر",
+            loadMore: "عرض المزيد",
+            showing: "عرض",
+            of: "من",
+            items: "عنصر",
+            noDescription: "لا يوجد وصف متاح.",
+            priceLabel: "عملة",
+            iosLink: "رابط iOS",
+            androidLink: "رابط Android",
+            openIOS: "فتح في iOS",
+            openAndroid: "فتح في Android",
+            copy: "نسخ",
+            copied: "تم النسخ بنجاح!",
+            copyFailed: "فشل النسخ",
+            noImage: "لا توجد صورة متاحة",
+            categories: { all: "الكل", badges: "الشارات", banners: "البانرات", frames: "الإطارات", bubbles: "الفقاعات", bundles: "الحزم", gameupgrades: "ترقيات الألعاب", mods: "المودات", pips: "النقاط", items: "العناصر", other: "أخرى" }
+        },
+        en: {
+            appName: "Plato Finder",
+            searchTitle: "Find any item",
+            searchPlaceholder: "Search by name or SKU (e.g. Rainbow Pop)...",
+            loading: "Loading data...",
+            noResults: "No results found",
+            noResultsHint: "Try different keywords or change filters.",
+            loadError: "Failed to load data",
+            loadErrorHint: "Make sure plato_items.json exists next to index.html, and run the site over HTTP.",
+            filters: "Filters",
+            category: "Category",
+            sortBy: "Sort by",
+            sortNameAsc: "Name (A-Z)",
+            sortNameDesc: "Name (Z-A)",
+            sortPriceAsc: "Price (Low-High)",
+            sortPriceDesc: "Price (High-Low)",
+            sortSkuAsc: "SKU (Ascending)",
+            sortSkuDesc: "SKU (Descending)",
+            priceRange: "Price range",
+            minPrice: "Min",
+            maxPrice: "Max",
+            resetFilters: "Reset filters",
+            loadMore: "Load more",
+            showing: "Showing",
+            of: "of",
+            items: "items",
+            noDescription: "No description available.",
+            priceLabel: "coins",
+            iosLink: "iOS Link",
+            androidLink: "Android Link",
+            openIOS: "Open in iOS",
+            openAndroid: "Open in Android",
+            copy: "Copy",
+            copied: "Copied successfully!",
+            copyFailed: "Copy failed",
+            noImage: "No image available",
+            categories: { all: "All", badges: "Badges", banners: "Banners", frames: "Frames", bubbles: "Bubbles", bundles: "Bundles", gameupgrades: "Game Upgrades", mods: "Mods", pips: "Pips", items: "Items", other: "Other" }
+        },
+        fr: {
+            appName: "Plato Finder",
+            searchTitle: "Rechercher un article",
+            searchPlaceholder: "Rechercher par nom ou SKU (ex. Rainbow Pop)...",
+            loading: "Chargement des données...",
+            noResults: "Aucun résultat trouvé",
+            noResultsHint: "Essayez d'autres mots-clés ou modifiez les filtres.",
+            loadError: "Échec du chargement des données",
+            loadErrorHint: "Vérifiez que plato_items.json existe à côté de index.html.",
+            filters: "Filtres",
+            category: "Catégorie",
+            sortBy: "Trier par",
+            sortNameAsc: "Nom (A-Z)",
+            sortNameDesc: "Nom (Z-A)",
+            sortPriceAsc: "Prix (croissant)",
+            sortPriceDesc: "Prix (décroissant)",
+            sortSkuAsc: "SKU (croissant)",
+            sortSkuDesc: "SKU (décroissant)",
+            priceRange: "Fourchette de prix",
+            minPrice: "Min",
+            maxPrice: "Max",
+            resetFilters: "Réinitialiser les filtres",
+            loadMore: "Voir plus",
+            showing: "Affichage de",
+            of: "sur",
+            items: "articles",
+            noDescription: "Aucune description disponible.",
+            priceLabel: "pièces",
+            iosLink: "Lien iOS",
+            androidLink: "Lien Android",
+            openIOS: "Ouvrir dans iOS",
+            openAndroid: "Ouvrir dans Android",
+            copy: "Copier",
+            copied: "Copié avec succès!",
+            copyFailed: "Échec de la copie",
+            noImage: "Aucune image disponible",
+            categories: { all: "Tous", badges: "Badges", banners: "Bannières", frames: "Cadres", bubbles: "Bulles", bundles: "Paquets", gameupgrades: "Améliorations de jeu", mods: "Mods", pips: "Points", items: "Articles", other: "Autres" }
+        },
+        fa: {
+            appName: "Plato Finder",
+            searchTitle: "جستجوی هر آیتم",
+            searchPlaceholder: "جستجو با نام یا SKU (مثال: Rainbow Pop)...",
+            loading: "در حال بارگذاری داده‌ها...",
+            noResults: "نتیجه‌ای یافت نشد",
+            noResultsHint: "کلمات دیگری را امتحان کنید یا فیلترها را تغییر دهید.",
+            loadError: "بارگذاری داده‌ها ناموفق بود",
+            loadErrorHint: "مطمئن شوید plato_items.json در کنار index.html وجود دارد.",
+            filters: "فیلترها",
+            category: "دسته‌بندی",
+            sortBy: "مرتب‌سازی بر اساس",
+            sortNameAsc: "نام (الف-ی)",
+            sortNameDesc: "نام (ی-الف)",
+            sortPriceAsc: "قیمت (کم به زیاد)",
+            sortPriceDesc: "قیمت (زیاد به کم)",
+            sortSkuAsc: "SKU (صعودی)",
+            sortSkuDesc: "SKU (نزولی)",
+            priceRange: "محدوده قیمت",
+            minPrice: "حداقل",
+            maxPrice: "حداکثر",
+            resetFilters: "بازنشانی فیلترها",
+            loadMore: "بیشتر",
+            showing: "نمایش",
+            of: "از",
+            items: "آیتم",
+            noDescription: "توضیحی موجود نیست.",
+            priceLabel: "سکه",
+            iosLink: "لینک iOS",
+            androidLink: "لینک Android",
+            openIOS: "باز کردن در iOS",
+            openAndroid: "باز کردن در Android",
+            copy: "کپی",
+            copied: "با موفقیت کپی شد!",
+            copyFailed: "کپی ناموفق",
+            noImage: "تصویری موجود نیست",
+            categories: { all: "همه", badges: "نشان‌ها", banners: "بنرها", frames: "قاب‌ها", bubbles: "حباب‌ها", bundles: "بسته‌ها", gameupgrades: "ارتقاهای بازی", mods: "مودها", pips: "امتیازها", items: "آیتم‌ها", other: "سایر" }
+        },
+        pt: {
+            appName: "Plato Finder",
+            searchTitle: "Pesquisar qualquer item",
+            searchPlaceholder: "Pesquisar por nome ou SKU (ex. Rainbow Pop)...",
+            loading: "Carregando dados...",
+            noResults: "Nenhum resultado encontrado",
+            noResultsHint: "Tente palavras diferentes ou altere os filtros.",
+            loadError: "Falha ao carregar dados",
+            loadErrorHint: "Verifique se plato_items.json existe ao lado de index.html.",
+            filters: "Filtros",
+            category: "Categoria",
+            sortBy: "Ordenar por",
+            sortNameAsc: "Nome (A-Z)",
+            sortNameDesc: "Nome (Z-A)",
+            sortPriceAsc: "Preço (menor)",
+            sortPriceDesc: "Preço (maior)",
+            sortSkuAsc: "SKU (crescente)",
+            sortSkuDesc: "SKU (decrescente)",
+            priceRange: "Faixa de preço",
+            minPrice: "Mín",
+            maxPrice: "Máx",
+            resetFilters: "Redefinir filtros",
+            loadMore: "Carregar mais",
+            showing: "Mostrando",
+            of: "de",
+            items: "itens",
+            noDescription: "Nenhuma descrição disponível.",
+            priceLabel: "moedas",
+            iosLink: "Link iOS",
+            androidLink: "Link Android",
+            openIOS: "Abrir no iOS",
+            openAndroid: "Abrir no Android",
+            copy: "Copiar",
+            copied: "Copiado com sucesso!",
+            copyFailed: "Falha ao copiar",
+            noImage: "Sem imagem disponível",
+            categories: { all: "Todos", badges: "Emblemas", banners: "Banners", frames: "Molduras", bubbles: "Bolhas", bundles: "Pacotes", gameupgrades: "Melhorias de jogo", mods: "Mods", pips: "Pontos", items: "Itens", other: "Outros" }
+        },
+        zh: {
+            appName: "Plato Finder",
+            searchTitle: "搜索任意物品",
+            searchPlaceholder: "按名称或SKU搜索（例：Rainbow Pop）...",
+            loading: "正在加载数据...",
+            noResults: "未找到结果",
+            noResultsHint: "请尝试其他关键词或修改筛选条件。",
+            loadError: "加载数据失败",
+            loadErrorHint: "请确认 plato_items.json 与 index.html 在同一目录，并通过HTTP访问。",
+            filters: "筛选",
+            category: "类别",
+            sortBy: "排序方式",
+            sortNameAsc: "名称 (A-Z)",
+            sortNameDesc: "名称 (Z-A)",
+            sortPriceAsc: "价格 (低到高)",
+            sortPriceDesc: "价格 (高到低)",
+            sortSkuAsc: "SKU (升序)",
+            sortSkuDesc: "SKU (降序)",
+            priceRange: "价格范围",
+            minPrice: "最低",
+            maxPrice: "最高",
+            resetFilters: "重置筛选",
+            loadMore: "加载更多",
+            showing: "显示",
+            of: "/",
+            items: "项",
+            noDescription: "暂无描述。",
+            priceLabel: "金币",
+            iosLink: "iOS链接",
+            androidLink: "Android链接",
+            openIOS: "在iOS中打开",
+            openAndroid: "在Android中打开",
+            copy: "复制",
+            copied: "复制成功!",
+            copyFailed: "复制失败",
+            noImage: "无图片",
+            categories: { all: "全部", badges: "徽章", banners: "横幅", frames: "边框", bubbles: "气泡", bundles: "礼包", gameupgrades: "游戏升级", mods: "模组", pips: "点数", items: "物品", other: "其他" }
         }
+    };
 
-        // تحميل البيانات من JSON
-        async function loadData() {
-            try {
-                const res = await fetch('plato_items.json');
-                if (!res.ok) throw new Error('HTTP ' + res.status);
-                platoData = await res.json();
-                
-                if (!Array.isArray(platoData)) {
-                    throw new Error('صيغة JSON غير صحيحة (ليست مصفوفة)');
-                }
-                
-                loadingState.classList.add('hidden');
-                renderResults(platoData.slice(0, 60));
-                console.log('تم تحميل ' + platoData.length + ' عنصر بنجاح');
-            } catch (err) {
-                console.error('فشل تحميل البيانات:', err);
-                loadingState.classList.add('hidden');
-                emptyState.classList.remove('hidden');
-                emptyState.querySelector('h3').textContent = 'تعذر تحميل البيانات';
-                emptyState.querySelector('p').textContent = 'تأكد من وجود plato_items.json بجانب index.html، وشغّل الموقع عبر HTTP (GitHub Pages أو سيرفر محلي).';
-            }
+    // ==================== STATE ====================
+    let currentLang = 'ar';
+    let platoData = [];
+    let allCategories = [];
+    let currentFilters = { category: 'all', sortBy: 'nameAsc', minPrice: null, maxPrice: null, query: '' };
+    let visibleLimit = 60;
+    let filteredItems = [];
+
+    const searchInput = document.getElementById('searchInput');
+    const resultsContainer = document.getElementById('resultsContainer');
+    const emptyState = document.getElementById('emptyState');
+    const loadingState = document.getElementById('loadingState');
+    const resultsInfo = document.getElementById('resultsInfo');
+    const loadMoreWrapper = document.getElementById('loadMoreWrapper');
+    const modal = document.getElementById('itemModal');
+    const modalBackdrop = document.getElementById('modalBackdrop');
+    const modalPanel = document.getElementById('modalPanel');
+
+    // ==================== HELPERS ====================
+    function getImagePath(imgName) {
+        if (!imgName || imgName.trim() === '' || imgName.toLowerCase() === 'nan') return null;
+        let cleanName = imgName.replace(/^\/+/, '');
+        if (!cleanName.startsWith('iap/')) return 'iap/' + cleanName;
+        return cleanName;
+    }
+
+    function getCategory(item) {
+        let path = (item.img1 || '').toLowerCase();
+        path = path.replace(/^\/+/, '').replace(/^iap\//, '');
+        if (path.startsWith('badges/')) return 'badges';
+        if (path.startsWith('banners/') || path.startsWith('banners_v2/')) return 'banners';
+        if (path.startsWith('frames/')) return 'frames';
+        if (path.startsWith('bubbles/')) return 'bubbles';
+        if (path.startsWith('bundles/')) return 'bundles';
+        if (path.startsWith('gameupgrades/')) return 'gameupgrades';
+        if (path.startsWith('mods/')) return 'mods';
+        if (path.startsWith('pips/')) return 'pips';
+        const fn = path.split('/').pop() || '';
+        if (fn.includes('_badge')) return 'badges';
+        if (fn.includes('_banner')) return 'banners';
+        if (fn.includes('_frame')) return 'frames';
+        if (fn.includes('_bubble')) return 'bubbles';
+        if (fn.includes('_bundle')) return 'bundles';
+        if (fn.startsWith('iap_game_')) return 'gameupgrades';
+        if (fn.includes('_mod')) return 'mods';
+        if (fn.includes('_pips')) return 'pips';
+        if (fn.includes('_item')) return 'items';
+        if (fn.startsWith('iap_')) return 'items';
+        return 'other';
+    }
+
+    function t(key) {
+        return (translations[currentLang] && translations[currentLang][key]) || key;
+    }
+
+    function setDirection(lang) {
+        const rtl = ['ar', 'fa'].includes(lang);
+        document.documentElement.dir = rtl ? 'rtl' : 'ltr';
+        document.documentElement.lang = lang;
+    }
+
+    // ==================== TRANSLATIONS APPLY ====================
+    function applyTranslations() {
+        const tr = translations[currentLang];
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.dataset.i18n;
+            if (tr[key] !== undefined) el.textContent = tr[key];
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            const key = el.dataset.i18nPlaceholder;
+            if (tr[key] !== undefined) el.placeholder = tr[key];
+        });
+        searchInput.placeholder = tr.searchPlaceholder;
+        document.querySelectorAll('#sortSelect option').forEach(opt => {
+            const key = opt.dataset.i18n;
+            if (key && tr[key] !== undefined) opt.textContent = tr[key];
+        });
+        document.getElementById('modalPriceLabel').textContent = tr.priceLabel;
+        renderCategoryChips();
+        updateFilterCount();
+        if (platoData.length > 0) {
+            applyFilters();
+        } else if (emptyState.classList.contains('hidden') === false) {
+            // already showing empty - re-apply for translation
         }
+    }
 
-        function renderResults(items) {
-            resultsContainer.innerHTML = '';
-            if (items.length === 0) {
-                emptyState.classList.remove('hidden');
-                return;
-            }
-            emptyState.classList.add('hidden');
-            
-            const displayItems = items.slice(0, 60);
-            
-            displayItems.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'glass rounded-xl p-3 card-hover cursor-pointer fade-in border border-border hover:border-primary/30';
-                card.onclick = () => openModal(item);
-                
-                const imgPath = getImagePath(item.img1);
-                const hasImage = imgPath !== null;
-                
-                card.innerHTML = `
-                    <div class="aspect-square rounded-lg bg-bg border border-border mb-3 overflow-hidden relative flex items-center justify-center">
-                        ${hasImage ? `<img src="${imgPath}" alt="${item.name}" loading="lazy" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">` : ''}
-                        <div class="${hasImage ? 'hidden' : 'flex'} w-full h-full flex-col items-center justify-center text-textMuted p-2 text-center">
-                            <svg class="w-8 h-8 mb-1 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                            <span class="text-xs font-medium leading-tight">${item.name}</span>
-                        </div>
-                    </div>
-                    <h3 class="text-text font-semibold text-sm mb-1 truncate">${item.name}</h3>
-                    <div class="flex items-center justify-between">
-                        <span class="text-textMuted text-xs font-mono bg-surface px-1.5 py-0.5 rounded border border-border">SKU: ${item.sku}</span>
-                        <span class="text-primary text-xs font-bold">${Number(item.price).toLocaleString()} 🪙</span>
-                    </div>
-                `;
-                resultsContainer.appendChild(card);
-            });
-            
-            if (items.length > 60) {
-                const moreMsg = document.createElement('div');
-                moreMsg.className = 'col-span-full text-center text-textMuted py-6 text-sm';
-                moreMsg.textContent = `عرض أول 60 نتيجة من أصل ${items.length}. حدد بحثك للمزيد.`;
-                resultsContainer.appendChild(moreMsg);
-            }
-        }
+    // ==================== CATEGORIES ====================
+    function computeAllCategories() {
+        const set = new Set();
+        platoData.forEach(item => set.add(getCategory(item)));
+        const order = ['badges', 'banners', 'frames', 'bubbles', 'bundles', 'gameupgrades', 'mods', 'pips', 'items', 'other'];
+        allCategories = order.filter(c => set.has(c));
+    }
 
-        function openModal(item) {
-            document.getElementById('modalTitle').textContent = item.name;
-            document.getElementById('modalSku').textContent = item.sku;
-            document.getElementById('modalDescription').textContent = item.description || 'لا يوجد وصف متاح.';
-            document.getElementById('modalPrice').textContent = Number(item.price).toLocaleString();
-            
-            const imgPath = getImagePath(item.img1);
-            const modalImg = document.getElementById('modalImage');
-            const modalFallback = document.getElementById('modalFallback');
-            
-            if (imgPath) {
-                modalImg.src = imgPath;
-                modalImg.style.display = 'block';
-                modalFallback.style.display = 'none';
-            } else {
-                modalImg.style.display = 'none';
-                modalFallback.style.display = 'flex';
-                modalFallback.textContent = 'لا توجد صورة متاحة';
-            }
-            
-            const iosUrl = `https://platoapp.co/navigate/item?sku=${item.sku}`;
-            const androidUrl = `https://platoapp.com/navigate/item?sku=${item.sku}`;
-            
-            document.getElementById('iosLink').href = iosUrl;
-            document.getElementById('androidLink').href = androidUrl;
-            document.getElementById('iosLink').dataset.url = iosUrl;
-            document.getElementById('androidLink').dataset.url = androidUrl;
-            
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                modalBackdrop.classList.remove('opacity-0');
-                modalPanel.classList.remove('opacity-0', 'translate-y-4', 'scale-95');
-                modalPanel.classList.add('opacity-100', 'translate-y-0', 'scale-100');
-            }, 10);
-        }
+    function renderCategoryChips() {
+        const container = document.getElementById('categoryChips');
+        const tr = translations[currentLang];
+        container.innerHTML = '';
+        ['all', ...allCategories].forEach(cat => {
+            const chip = document.createElement('button');
+            chip.className = 'cat-chip' + (currentFilters.category === cat ? ' active' : '');
+            chip.textContent = tr.categories[cat] || cat;
+            chip.onclick = () => {
+                currentFilters.category = cat;
+                visibleLimit = 60;
+                renderCategoryChips();
+                updateFilterCount();
+                applyFilters();
+            };
+            container.appendChild(chip);
+        });
+    }
 
-        function closeModal() {
-            modalBackdrop.classList.add('opacity-0');
-            modalPanel.classList.remove('opacity-100', 'translate-y-0', 'scale-100');
-            modalPanel.classList.add('opacity-0', 'translate-y-4', 'scale-95');
-            setTimeout(() => { modal.classList.add('hidden'); }, 200);
-        }
+    // ==================== FILTER COUNT ====================
+    function updateFilterCount() {
+        let count = 0;
+        if (currentFilters.category !== 'all') count++;
+        if (currentFilters.minPrice !== null || currentFilters.maxPrice !== null) count++;
+        if (currentFilters.sortBy !== 'nameAsc') count++;
+        const badge = document.getElementById('filterCount');
+        if (count > 0) { badge.textContent = count; badge.classList.remove('hidden'); }
+        else { badge.classList.add('hidden'); }
+    }
 
-        function copyToClipboard(elementId) {
-            const url = document.getElementById(elementId).dataset.url;
-            navigator.clipboard.writeText(url).then(() => {
-                showToast('تم نسخ الرابط بنجاح!');
-            }).catch(() => {
-                showToast('فشل النسخ، يرجى المحاولة يدوياً.');
-            });
-        }
+    // ==================== FILTERING ====================
+    function applyFilters() {
+        let result = platoData.slice();
 
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastMessage').textContent = message;
-            toast.classList.remove('opacity-0', 'translate-y-10');
-            setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-10'); }, 2000);
-        }
-
-        searchInput.addEventListener('input', (e) => {
-            const query = e.target.value.toLowerCase().trim();
-            if (!query) {
-                renderResults(platoData.slice(0, 60));
-                return;
-            }
-            const filtered = platoData.filter(item => 
-                (item.name && item.name.toLowerCase().includes(query)) || 
-                (item.sku && String(item.sku).includes(query))
+        if (currentFilters.query) {
+            const q = currentFilters.query;
+            result = result.filter(item =>
+                (item.name && item.name.toLowerCase().includes(q)) ||
+                (item.sku && String(item.sku).includes(q))
             );
-            renderResults(filtered);
+        }
+        if (currentFilters.category !== 'all') {
+            result = result.filter(item => getCategory(item) === currentFilters.category);
+        }
+        if (currentFilters.minPrice !== null) {
+            result = result.filter(item => Number(item.price) >= currentFilters.minPrice);
+        }
+        if (currentFilters.maxPrice !== null) {
+            result = result.filter(item => Number(item.price) <= currentFilters.maxPrice);
+        }
+
+        const sb = currentFilters.sortBy;
+        result.sort((a, b) => {
+            switch (sb) {
+                case 'nameAsc': return (a.name || '').localeCompare(b.name || '');
+                case 'nameDesc': return (b.name || '').localeCompare(a.name || '');
+                case 'priceAsc': return Number(a.price || 0) - Number(b.price || 0);
+                case 'priceDesc': return Number(b.price || 0) - Number(a.price || 0);
+                case 'skuAsc': return String(a.sku || '').localeCompare(String(b.sku || ''), undefined, { numeric: true });
+                case 'skuDesc': return String(b.sku || '').localeCompare(String(a.sku || ''), undefined, { numeric: true });
+                default: return 0;
+            }
         });
 
-        modalBackdrop.addEventListener('click', closeModal);
+        renderResults(result);
+    }
 
-        // بدء التحميل
+    // ==================== RENDER ====================
+    function createCard(item) {
+        const card = document.createElement('div');
+        card.className = 'glass rounded-xl p-3 card-hover cursor-pointer fade-in border border-border hover:border-primary/30';
+        card.onclick = () => openModal(item);
+        const imgPath = getImagePath(item.img1);
+        const hasImage = imgPath !== null;
+        const displayName = item.name || '';
+        const displaySku = item.sku || '';
+        card.innerHTML = `
+            <div class="aspect-square rounded-lg bg-bg border border-border mb-3 overflow-hidden relative flex items-center justify-center">
+                ${hasImage ? `<img src="${imgPath}" alt="${displayName}" loading="lazy" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">` : ''}
+                <div class="${hasImage ? 'hidden' : 'flex'} w-full h-full flex-col items-center justify-center text-textMuted p-2 text-center">
+                    <svg class="w-8 h-8 mb-1 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    <span class="text-xs font-medium leading-tight">${displayName}</span>
+                </div>
+            </div>
+            <h3 class="text-text font-semibold text-sm mb-1 truncate">${displayName}</h3>
+            <div class="flex items-center justify-between gap-2">
+                <span class="text-textMuted text-xs font-mono bg-surface px-1.5 py-0.5 rounded border border-border truncate">SKU: ${displaySku}</span>
+                <span class="text-primary text-xs font-bold whitespace-nowrap">${Number(item.price || 0).toLocaleString()} 🪙</span>
+            </div>
+        `;
+        return card;
+    }
+
+    function renderResults(items) {
+        filteredItems = items;
+        resultsContainer.innerHTML = '';
+        if (items.length === 0) {
+            emptyState.classList.remove('hidden');
+            resultsInfo.classList.add('hidden');
+            loadMoreWrapper.classList.add('hidden');
+            return;
+        }
+        emptyState.classList.add('hidden');
+        const slice = items.slice(0, visibleLimit);
+        const frag = document.createDocumentFragment();
+        slice.forEach(item => frag.appendChild(createCard(item)));
+        resultsContainer.appendChild(frag);
+
+        const tr = translations[currentLang];
+        resultsInfo.classList.remove('hidden');
+        resultsInfo.textContent = `${tr.showing} ${Math.min(visibleLimit, items.length)} ${tr.of} ${items.length} ${tr.items}`;
+
+        if (items.length > visibleLimit) {
+            loadMoreWrapper.classList.remove('hidden');
+        } else {
+            loadMoreWrapper.classList.add('hidden');
+        }
+    }
+
+    function loadMore() {
+        const oldLimit = visibleLimit;
+        visibleLimit += 60;
+        const next = filteredItems.slice(oldLimit, visibleLimit);
+        const frag = document.createDocumentFragment();
+        next.forEach(item => frag.appendChild(createCard(item)));
+        resultsContainer.appendChild(frag);
+        const tr = translations[currentLang];
+        resultsInfo.textContent = `${tr.showing} ${Math.min(visibleLimit, filteredItems.length)} ${tr.of} ${filteredItems.length} ${tr.items}`;
+        if (filteredItems.length <= visibleLimit) loadMoreWrapper.classList.add('hidden');
+    }
+
+    // ==================== FILTERS UI ====================
+    function toggleFilters() {
+        const content = document.getElementById('filterContent');
+        const chevron = document.getElementById('filterChevron');
+        if (content.classList.contains('hidden')) {
+            content.classList.remove('hidden');
+            chevron.style.transform = 'rotate(180deg)';
+        } else {
+            content.classList.add('hidden');
+            chevron.style.transform = 'rotate(0deg)';
+        }
+    }
+
+    function resetFilters() {
+        currentFilters = { category: 'all', sortBy: 'nameAsc', minPrice: null, maxPrice: null, query: '' };
+        document.getElementById('searchInput').value = '';
+        document.getElementById('minPrice').value = '';
+        document.getElementById('maxPrice').value = '';
+        document.getElementById('sortSelect').value = 'nameAsc';
+        visibleLimit = 60;
+        renderCategoryChips();
+        updateFilterCount();
+        applyFilters();
+    }
+
+    // ==================== MODAL ====================
+    function openModal(item) {
+        const tr = translations[currentLang];
+        document.getElementById('modalTitle').textContent = item.name || '';
+        document.getElementById('modalSku').textContent = item.sku || '';
+        document.getElementById('modalDescription').textContent = item.description || tr.noDescription;
+        document.getElementById('modalPrice').textContent = Number(item.price || 0).toLocaleString();
+        const imgPath = getImagePath(item.img1);
+        const modalImg = document.getElementById('modalImage');
+        const modalFallback = document.getElementById('modalFallback');
+        if (imgPath) {
+            modalImg.src = imgPath;
+            modalImg.style.display = 'block';
+            modalFallback.style.display = 'none';
+        } else {
+            modalImg.style.display = 'none';
+            modalFallback.style.display = 'flex';
+            modalFallback.textContent = tr.noImage;
+        }
+        const iosUrl = `https://platoapp.co/navigate/item?sku=${item.sku}`;
+        const androidUrl = `https://platoapp.com/navigate/item?sku=${item.sku}`;
+        document.getElementById('iosLink').href = iosUrl;
+        document.getElementById('androidLink').href = androidUrl;
+        document.getElementById('iosLink').dataset.url = iosUrl;
+        document.getElementById('androidLink').dataset.url = androidUrl;
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modalBackdrop.classList.remove('opacity-0');
+            modalPanel.classList.remove('opacity-0', 'translate-y-4', 'scale-95');
+            modalPanel.classList.add('opacity-100', 'translate-y-0', 'scale-100');
+        }, 10);
+    }
+
+    function closeModal() {
+        modalBackdrop.classList.add('opacity-0');
+        modalPanel.classList.remove('opacity-100', 'translate-y-0', 'scale-100');
+        modalPanel.classList.add('opacity-0', 'translate-y-4', 'scale-95');
+        setTimeout(() => modal.classList.add('hidden'), 200);
+    }
+
+    function copyToClipboard(elementId) {
+        const url = document.getElementById(elementId).dataset.url;
+        navigator.clipboard.writeText(url).then(() => showToast(t('copied'))).catch(() => showToast(t('copyFailed')));
+    }
+
+    function showToast(msg) {
+        const toast = document.getElementById('toast');
+        document.getElementById('toastMessage').textContent = msg;
+        toast.classList.remove('opacity-0', 'translate-y-10');
+        setTimeout(() => toast.classList.add('opacity-0', 'translate-y-10'), 2000);
+    }
+
+    // ==================== DATA LOADING ====================
+    async function loadData() {
+        try {
+            const res = await fetch('plato_items.json');
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            platoData = await res.json();
+            if (!Array.isArray(platoData)) throw new Error('Invalid JSON format');
+            computeAllCategories();
+            loadingState.classList.add('hidden');
+            applyTranslations();
+            console.log('Loaded ' + platoData.length + ' items');
+        } catch (err) {
+            console.error('Failed to load data:', err);
+            loadingState.classList.add('hidden');
+            emptyState.classList.remove('hidden');
+            document.getElementById('emptyTitle').textContent = t('loadError');
+            document.getElementById('emptyHint').textContent = t('loadErrorHint');
+        }
+    }
+
+    // ==================== EVENT LISTENERS ====================
+    let searchTimeout;
+    searchInput.addEventListener('input', (e) => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            currentFilters.query = e.target.value.toLowerCase().trim();
+            visibleLimit = 60;
+            applyFilters();
+        }, 250);
+    });
+
+    document.getElementById('sortSelect').addEventListener('change', (e) => {
+        currentFilters.sortBy = e.target.value;
+        visibleLimit = 60;
+        updateFilterCount();
+        applyFilters();
+    });
+
+    document.getElementById('minPrice').addEventListener('input', (e) => {
+        const v = e.target.value.trim();
+        currentFilters.minPrice = v === '' ? null : Number(v);
+        visibleLimit = 60;
+        updateFilterCount();
+        applyFilters();
+    });
+
+    document.getElementById('maxPrice').addEventListener('input', (e) => {
+        const v = e.target.value.trim();
+        currentFilters.maxPrice = v === '' ? null : Number(v);
+        visibleLimit = 60;
+        updateFilterCount();
+        applyFilters();
+    });
+
+    document.getElementById('langSelect').addEventListener('change', (e) => {
+        currentLang = e.target.value;
+        try { localStorage.setItem('plato_lang', currentLang); } catch (_) {}
+        setDirection(currentLang);
+        applyTranslations();
+    });
+
+    modalBackdrop.addEventListener('click', closeModal);
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal(); });
+
+    // ==================== INIT ====================
+    (function init() {
+        try {
+            const saved = localStorage.getItem('plato_lang');
+            if (saved && translations[saved]) currentLang = saved;
+        } catch (_) {}
+        document.getElementById('langSelect').value = currentLang;
+        setDirection(currentLang);
+        applyTranslations();
         loadData();
+    })();
     </script>
 </body>
 </html>
