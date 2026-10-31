@@ -30,52 +30,17 @@
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #09090b; }
         ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 3px; }
-
-        /* Category chips - plain CSS (Tailwind CDN doesn't support @apply in <style>) */
-        .cat-chip {
-            padding: 0.375rem 0.75rem;
-            border-radius: 0.5rem;
-            font-size: 0.75rem;
-            font-weight: 500;
-            border-width: 1px;
-            border-style: solid;
-            transition: all 0.15s;
-            cursor: pointer;
-            background-color: #18181b;
-            border-color: #27272a;
-            color: #a1a1aa;
-            white-space: nowrap;
-        }
+        .cat-chip { padding: 0.375rem 0.75rem; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 500; border-width: 1px; border-style: solid; transition: all 0.15s; cursor: pointer; background-color: #18181b; border-color: #27272a; color: #a1a1aa; white-space: nowrap; }
         .cat-chip:hover { background-color: #27272a; color: #fafafa; }
         .cat-chip.active { background-color: rgba(59, 130, 246, 0.2); border-color: #3b82f6; color: #3b82f6; }
-
-        /* Custom select arrow */
-        select {
-            -webkit-appearance: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23a1a1aa'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: left 0.5rem center;
-            background-size: 1rem;
-            padding-left: 2rem;
-            padding-right: 0.75rem;
-        }
-        [dir="ltr"] select {
-            background-position: right 0.5rem center;
-            padding-left: 0.75rem;
-            padding-right: 2rem;
-        }
-
-        /* LTR overrides */
+        select { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23a1a1aa'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: left 0.5rem center; background-size: 1rem; padding-left: 2rem; padding-right: 0.75rem; }
+        [dir="ltr"] select { background-position: right 0.5rem center; padding-left: 0.75rem; padding-right: 2rem; }
         [dir="ltr"] .search-icon-wrapper { right: auto; left: 0; padding-right: 0; padding-left: 1rem; }
         [dir="ltr"] #searchInput { padding-right: 1rem; padding-left: 3rem; }
-
-        /* Hide number spinners */
         input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
-
-        /* Smooth transitions */
-        .lang-transition { transition: opacity 0.2s ease; }
+        .coin-img { width: 1rem; height: 1rem; object-fit: contain; display: inline-block; vertical-align: middle; }
+        .coin-img-lg { width: 1.25rem; height: 1.25rem; object-fit: contain; display: inline-block; vertical-align: middle; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col font-sans antialiased">
@@ -94,15 +59,14 @@
                 <option value="fa">🇮🇷 فارسی</option>
                 <option value="pt">🇵🇹 Português</option>
                 <option value="zh">🇨🇳 中文</option>
+                <option value="tr">🇹🇷 Türkçe</option>
             </select>
         </div>
     </header>
 
     <main class="flex-grow max-w-5xl mx-auto px-4 py-6 w-full">
-
         <div class="mb-6 space-y-4">
             <h2 class="text-2xl font-bold text-center" data-i18n="searchTitle">ابحث عن أي عنصر</h2>
-
             <div class="relative search-ring rounded-xl transition-all duration-200">
                 <div class="search-icon-wrapper absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
                     <svg class="h-5 w-5 text-textMuted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -130,7 +94,6 @@
                     <label class="text-xs font-medium text-textMuted mb-2 block" data-i18n="category">الفئة</label>
                     <div id="categoryChips" class="flex flex-wrap gap-2"></div>
                 </div>
-
                 <div>
                     <label class="text-xs font-medium text-textMuted mb-2 block" data-i18n="sortBy">الترتيب</label>
                     <select id="sortSelect" class="w-full bg-bg border border-border rounded-lg px-3 py-2 text-sm text-text focus:outline-none focus:border-primary">
@@ -142,7 +105,6 @@
                         <option value="skuDesc" data-i18n="sortSkuDesc">SKU (تنازلي)</option>
                     </select>
                 </div>
-
                 <div>
                     <label class="text-xs font-medium text-textMuted mb-2 block" data-i18n="priceRange">نطاق السعر</label>
                     <div class="flex gap-2 items-center">
@@ -151,7 +113,6 @@
                         <input type="number" id="maxPrice" class="flex-1 bg-bg border border-border rounded-lg px-3 py-2 text-sm text-text focus:outline-none focus:border-primary" data-i18n-placeholder="maxPrice" placeholder="الأعلى">
                     </div>
                 </div>
-
                 <button onclick="resetFilters()" class="w-full bg-surfaceHover hover:bg-border text-text text-sm py-2 rounded-lg transition-colors flex items-center justify-center gap-2">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -179,7 +140,6 @@
         </div>
 
         <div id="resultsInfo" class="hidden text-center text-textMuted text-xs mt-6"></div>
-
         <div id="loadMoreWrapper" class="hidden text-center mt-6">
             <button onclick="loadMore()" class="bg-surface hover:bg-surfaceHover border border-border text-text text-sm font-medium px-6 py-2.5 rounded-xl transition-colors">
                 <span data-i18n="loadMore">عرض المزيد</span>
@@ -198,7 +158,6 @@
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                         </button>
                     </div>
-
                     <div class="p-5 space-y-5">
                         <div class="flex gap-4">
                             <div class="w-24 h-24 flex-shrink-0 rounded-xl bg-bg border border-border flex items-center justify-center overflow-hidden">
@@ -209,13 +168,12 @@
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-primary/10 text-primary border border-primary/20 w-fit mb-2 font-mono">SKU: <span id="modalSku"></span></span>
                                 <p id="modalDescription" class="text-textMuted text-sm leading-relaxed line-clamp-3"></p>
                                 <div class="flex items-center gap-1.5 mt-2 text-text font-bold">
-                                    <svg class="w-4 h-4 text-yellow-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6z"/></svg>
                                     <span id="modalPrice"></span>
+                                    <img id="modalCoinImage" src="" alt="coins" class="coin-img-lg" onerror="this.style.display='none'">
                                     <span class="text-xs text-textMuted font-normal" id="modalPriceLabel">عملة</span>
                                 </div>
                             </div>
                         </div>
-
                         <div class="space-y-3">
                             <div class="bg-bg rounded-xl p-3 border border-border">
                                 <div class="flex items-center justify-between gap-2 mb-2">
@@ -227,7 +185,6 @@
                                 </div>
                                 <a id="iosLink" href="#" target="_blank" class="block w-full text-center bg-primary hover:bg-primaryHover text-white text-sm font-semibold py-2.5 rounded-lg transition-colors" data-i18n="openIOS">فتح في iOS</a>
                             </div>
-
                             <div class="bg-bg rounded-xl p-3 border border-border">
                                 <div class="flex items-center justify-between gap-2 mb-2">
                                     <span class="text-xs font-medium text-textMuted" data-i18n="androidLink">رابط Android</span>
@@ -251,239 +208,156 @@
     </div>
 
     <script>
-    // ==================== TRANSLATIONS ====================
     const translations = {
         ar: {
-            appName: "Plato Finder",
-            searchTitle: "ابحث عن أي عنصر",
+            appName: "Plato Finder", searchTitle: "ابحث عن أي عنصر",
             searchPlaceholder: "ابحث بالاسم أو SKU (مثال: Rainbow Pop)...",
-            loading: "جارٍ تحميل البيانات...",
-            noResults: "لم يتم العثور على نتائج",
+            loading: "جارٍ تحميل البيانات...", noResults: "لم يتم العثور على نتائج",
             noResultsHint: "جرب البحث بكلمات مختلفة أو غيّر الفلاتر.",
             loadError: "تعذر تحميل البيانات",
             loadErrorHint: "تأكد من وجود plato_items.json بجانب index.html، وشغّل الموقع عبر HTTP.",
-            filters: "الفلاتر",
-            category: "الفئة",
-            sortBy: "الترتيب",
-            sortNameAsc: "الاسم (أ-ي)",
-            sortNameDesc: "الاسم (ي-أ)",
-            sortPriceAsc: "السعر (الأقل أولًا)",
-            sortPriceDesc: "السعر (الأعلى أولًا)",
-            sortSkuAsc: "SKU (تصاعدي)",
-            sortSkuDesc: "SKU (تنازلي)",
-            priceRange: "نطاق السعر",
-            minPrice: "الأدنى",
-            maxPrice: "الأعلى",
-            resetFilters: "إعادة تعيين الفلاتر",
-            loadMore: "عرض المزيد",
-            showing: "عرض",
-            of: "من",
-            items: "عنصر",
-            noDescription: "لا يوجد وصف متاح.",
-            priceLabel: "عملة",
-            iosLink: "رابط iOS",
-            androidLink: "رابط Android",
-            openIOS: "فتح في iOS",
-            openAndroid: "فتح في Android",
-            copy: "نسخ",
-            copied: "تم النسخ بنجاح!",
-            copyFailed: "فشل النسخ",
+            filters: "الفلاتر", category: "الفئة", sortBy: "الترتيب",
+            sortNameAsc: "الاسم (أ-ي)", sortNameDesc: "الاسم (ي-أ)",
+            sortPriceAsc: "السعر (الأقل أولًا)", sortPriceDesc: "السعر (الأعلى أولًا)",
+            sortSkuAsc: "SKU (تصاعدي)", sortSkuDesc: "SKU (تنازلي)",
+            priceRange: "نطاق السعر", minPrice: "الأدنى", maxPrice: "الأعلى",
+            resetFilters: "إعادة تعيين الفلاتر", loadMore: "عرض المزيد",
+            showing: "عرض", of: "من", items: "عنصر",
+            noDescription: "لا يوجد وصف متاح.", priceLabel: "عملة",
+            iosLink: "رابط iOS", androidLink: "رابط Android",
+            openIOS: "فتح في iOS", openAndroid: "فتح في Android",
+            copy: "نسخ", copied: "تم النسخ بنجاح!", copyFailed: "فشل النسخ",
             noImage: "لا توجد صورة متاحة",
             categories: { all: "الكل", badges: "الشارات", banners: "البانرات", frames: "الإطارات", bubbles: "الفقاعات", bundles: "الحزم", gameupgrades: "ترقيات الألعاب", mods: "المودات", pips: "النقاط", items: "العناصر", other: "أخرى" }
         },
         en: {
-            appName: "Plato Finder",
-            searchTitle: "Find any item",
+            appName: "Plato Finder", searchTitle: "Find any item",
             searchPlaceholder: "Search by name or SKU (e.g. Rainbow Pop)...",
-            loading: "Loading data...",
-            noResults: "No results found",
+            loading: "Loading data...", noResults: "No results found",
             noResultsHint: "Try different keywords or change filters.",
             loadError: "Failed to load data",
-            loadErrorHint: "Make sure plato_items.json exists next to index.html, and run the site over HTTP.",
-            filters: "Filters",
-            category: "Category",
-            sortBy: "Sort by",
-            sortNameAsc: "Name (A-Z)",
-            sortNameDesc: "Name (Z-A)",
-            sortPriceAsc: "Price (Low-High)",
-            sortPriceDesc: "Price (High-Low)",
-            sortSkuAsc: "SKU (Ascending)",
-            sortSkuDesc: "SKU (Descending)",
-            priceRange: "Price range",
-            minPrice: "Min",
-            maxPrice: "Max",
-            resetFilters: "Reset filters",
-            loadMore: "Load more",
-            showing: "Showing",
-            of: "of",
-            items: "items",
-            noDescription: "No description available.",
-            priceLabel: "coins",
-            iosLink: "iOS Link",
-            androidLink: "Android Link",
-            openIOS: "Open in iOS",
-            openAndroid: "Open in Android",
-            copy: "Copy",
-            copied: "Copied successfully!",
-            copyFailed: "Copy failed",
+            loadErrorHint: "Make sure plato_items.json exists next to index.html.",
+            filters: "Filters", category: "Category", sortBy: "Sort by",
+            sortNameAsc: "Name (A-Z)", sortNameDesc: "Name (Z-A)",
+            sortPriceAsc: "Price (Low-High)", sortPriceDesc: "Price (High-Low)",
+            sortSkuAsc: "SKU (Ascending)", sortSkuDesc: "SKU (Descending)",
+            priceRange: "Price range", minPrice: "Min", maxPrice: "Max",
+            resetFilters: "Reset filters", loadMore: "Load more",
+            showing: "Showing", of: "of", items: "items",
+            noDescription: "No description available.", priceLabel: "coins",
+            iosLink: "iOS Link", androidLink: "Android Link",
+            openIOS: "Open in iOS", openAndroid: "Open in Android",
+            copy: "Copy", copied: "Copied successfully!", copyFailed: "Copy failed",
             noImage: "No image available",
             categories: { all: "All", badges: "Badges", banners: "Banners", frames: "Frames", bubbles: "Bubbles", bundles: "Bundles", gameupgrades: "Game Upgrades", mods: "Mods", pips: "Pips", items: "Items", other: "Other" }
         },
         fr: {
-            appName: "Plato Finder",
-            searchTitle: "Rechercher un article",
+            appName: "Plato Finder", searchTitle: "Rechercher un article",
             searchPlaceholder: "Rechercher par nom ou SKU (ex. Rainbow Pop)...",
-            loading: "Chargement des données...",
-            noResults: "Aucun résultat trouvé",
+            loading: "Chargement des données...", noResults: "Aucun résultat trouvé",
             noResultsHint: "Essayez d'autres mots-clés ou modifiez les filtres.",
             loadError: "Échec du chargement des données",
             loadErrorHint: "Vérifiez que plato_items.json existe à côté de index.html.",
-            filters: "Filtres",
-            category: "Catégorie",
-            sortBy: "Trier par",
-            sortNameAsc: "Nom (A-Z)",
-            sortNameDesc: "Nom (Z-A)",
-            sortPriceAsc: "Prix (croissant)",
-            sortPriceDesc: "Prix (décroissant)",
-            sortSkuAsc: "SKU (croissant)",
-            sortSkuDesc: "SKU (décroissant)",
-            priceRange: "Fourchette de prix",
-            minPrice: "Min",
-            maxPrice: "Max",
-            resetFilters: "Réinitialiser les filtres",
-            loadMore: "Voir plus",
-            showing: "Affichage de",
-            of: "sur",
-            items: "articles",
-            noDescription: "Aucune description disponible.",
-            priceLabel: "pièces",
-            iosLink: "Lien iOS",
-            androidLink: "Lien Android",
-            openIOS: "Ouvrir dans iOS",
-            openAndroid: "Ouvrir dans Android",
-            copy: "Copier",
-            copied: "Copié avec succès!",
-            copyFailed: "Échec de la copie",
+            filters: "Filtres", category: "Catégorie", sortBy: "Trier par",
+            sortNameAsc: "Nom (A-Z)", sortNameDesc: "Nom (Z-A)",
+            sortPriceAsc: "Prix (croissant)", sortPriceDesc: "Prix (décroissant)",
+            sortSkuAsc: "SKU (croissant)", sortSkuDesc: "SKU (décroissant)",
+            priceRange: "Fourchette de prix", minPrice: "Min", maxPrice: "Max",
+            resetFilters: "Réinitialiser les filtres", loadMore: "Voir plus",
+            showing: "Affichage de", of: "sur", items: "articles",
+            noDescription: "Aucune description disponible.", priceLabel: "pièces",
+            iosLink: "Lien iOS", androidLink: "Lien Android",
+            openIOS: "Ouvrir dans iOS", openAndroid: "Ouvrir dans Android",
+            copy: "Copier", copied: "Copié avec succès!", copyFailed: "Échec de la copie",
             noImage: "Aucune image disponible",
             categories: { all: "Tous", badges: "Badges", banners: "Bannières", frames: "Cadres", bubbles: "Bulles", bundles: "Paquets", gameupgrades: "Améliorations de jeu", mods: "Mods", pips: "Points", items: "Articles", other: "Autres" }
         },
         fa: {
-            appName: "Plato Finder",
-            searchTitle: "جستجوی هر آیتم",
+            appName: "Plato Finder", searchTitle: "جستجوی هر آیتم",
             searchPlaceholder: "جستجو با نام یا SKU (مثال: Rainbow Pop)...",
-            loading: "در حال بارگذاری داده‌ها...",
-            noResults: "نتیجه‌ای یافت نشد",
+            loading: "در حال بارگذاری داده‌ها...", noResults: "نتیجه‌ای یافت نشد",
             noResultsHint: "کلمات دیگری را امتحان کنید یا فیلترها را تغییر دهید.",
             loadError: "بارگذاری داده‌ها ناموفق بود",
             loadErrorHint: "مطمئن شوید plato_items.json در کنار index.html وجود دارد.",
-            filters: "فیلترها",
-            category: "دسته‌بندی",
-            sortBy: "مرتب‌سازی بر اساس",
-            sortNameAsc: "نام (الف-ی)",
-            sortNameDesc: "نام (ی-الف)",
-            sortPriceAsc: "قیمت (کم به زیاد)",
-            sortPriceDesc: "قیمت (زیاد به کم)",
-            sortSkuAsc: "SKU (صعودی)",
-            sortSkuDesc: "SKU (نزولی)",
-            priceRange: "محدوده قیمت",
-            minPrice: "حداقل",
-            maxPrice: "حداکثر",
-            resetFilters: "بازنشانی فیلترها",
-            loadMore: "بیشتر",
-            showing: "نمایش",
-            of: "از",
-            items: "آیتم",
-            noDescription: "توضیحی موجود نیست.",
-            priceLabel: "سکه",
-            iosLink: "لینک iOS",
-            androidLink: "لینک Android",
-            openIOS: "باز کردن در iOS",
-            openAndroid: "باز کردن در Android",
-            copy: "کپی",
-            copied: "با موفقیت کپی شد!",
-            copyFailed: "کپی ناموفق",
+            filters: "فیلترها", category: "دسته‌بندی", sortBy: "مرتب‌سازی بر اساس",
+            sortNameAsc: "نام (الف-ی)", sortNameDesc: "نام (ی-الف)",
+            sortPriceAsc: "قیمت (کم به زیاد)", sortPriceDesc: "قیمت (زیاد به کم)",
+            sortSkuAsc: "SKU (صعودی)", sortSkuDesc: "SKU (نزولی)",
+            priceRange: "محدوده قیمت", minPrice: "حداقل", maxPrice: "حداکثر",
+            resetFilters: "بازنشانی فیلترها", loadMore: "بیشتر",
+            showing: "نمایش", of: "از", items: "آیتم",
+            noDescription: "توضیحی موجود نیست.", priceLabel: "سکه",
+            iosLink: "لینک iOS", androidLink: "لینک Android",
+            openIOS: "باز کردن در iOS", openAndroid: "باز کردن در Android",
+            copy: "کپی", copied: "با موفقیت کپی شد!", copyFailed: "کپی ناموفق",
             noImage: "تصویری موجود نیست",
             categories: { all: "همه", badges: "نشان‌ها", banners: "بنرها", frames: "قاب‌ها", bubbles: "حباب‌ها", bundles: "بسته‌ها", gameupgrades: "ارتقاهای بازی", mods: "مودها", pips: "امتیازها", items: "آیتم‌ها", other: "سایر" }
         },
         pt: {
-            appName: "Plato Finder",
-            searchTitle: "Pesquisar qualquer item",
+            appName: "Plato Finder", searchTitle: "Pesquisar qualquer item",
             searchPlaceholder: "Pesquisar por nome ou SKU (ex. Rainbow Pop)...",
-            loading: "Carregando dados...",
-            noResults: "Nenhum resultado encontrado",
+            loading: "Carregando dados...", noResults: "Nenhum resultado encontrado",
             noResultsHint: "Tente palavras diferentes ou altere os filtros.",
             loadError: "Falha ao carregar dados",
             loadErrorHint: "Verifique se plato_items.json existe ao lado de index.html.",
-            filters: "Filtros",
-            category: "Categoria",
-            sortBy: "Ordenar por",
-            sortNameAsc: "Nome (A-Z)",
-            sortNameDesc: "Nome (Z-A)",
-            sortPriceAsc: "Preço (menor)",
-            sortPriceDesc: "Preço (maior)",
-            sortSkuAsc: "SKU (crescente)",
-            sortSkuDesc: "SKU (decrescente)",
-            priceRange: "Faixa de preço",
-            minPrice: "Mín",
-            maxPrice: "Máx",
-            resetFilters: "Redefinir filtros",
-            loadMore: "Carregar mais",
-            showing: "Mostrando",
-            of: "de",
-            items: "itens",
-            noDescription: "Nenhuma descrição disponível.",
-            priceLabel: "moedas",
-            iosLink: "Link iOS",
-            androidLink: "Link Android",
-            openIOS: "Abrir no iOS",
-            openAndroid: "Abrir no Android",
-            copy: "Copiar",
-            copied: "Copiado com sucesso!",
-            copyFailed: "Falha ao copiar",
+            filters: "Filtros", category: "Categoria", sortBy: "Ordenar por",
+            sortNameAsc: "Nome (A-Z)", sortNameDesc: "Nome (Z-A)",
+            sortPriceAsc: "Preço (menor)", sortPriceDesc: "Preço (maior)",
+            sortSkuAsc: "SKU (crescente)", sortSkuDesc: "SKU (decrescente)",
+            priceRange: "Faixa de preço", minPrice: "Mín", maxPrice: "Máx",
+            resetFilters: "Redefinir filtros", loadMore: "Carregar mais",
+            showing: "Mostrando", of: "de", items: "itens",
+            noDescription: "Nenhuma descrição disponível.", priceLabel: "moedas",
+            iosLink: "Link iOS", androidLink: "Link Android",
+            openIOS: "Abrir no iOS", openAndroid: "Abrir no Android",
+            copy: "Copiar", copied: "Copiado com sucesso!", copyFailed: "Falha ao copiar",
             noImage: "Sem imagem disponível",
             categories: { all: "Todos", badges: "Emblemas", banners: "Banners", frames: "Molduras", bubbles: "Bolhas", bundles: "Pacotes", gameupgrades: "Melhorias de jogo", mods: "Mods", pips: "Pontos", items: "Itens", other: "Outros" }
         },
         zh: {
-            appName: "Plato Finder",
-            searchTitle: "搜索任意物品",
+            appName: "Plato Finder", searchTitle: "搜索任意物品",
             searchPlaceholder: "按名称或SKU搜索（例：Rainbow Pop）...",
-            loading: "正在加载数据...",
-            noResults: "未找到结果",
+            loading: "正在加载数据...", noResults: "未找到结果",
             noResultsHint: "请尝试其他关键词或修改筛选条件。",
             loadError: "加载数据失败",
-            loadErrorHint: "请确认 plato_items.json 与 index.html 在同一目录，并通过HTTP访问。",
-            filters: "筛选",
-            category: "类别",
-            sortBy: "排序方式",
-            sortNameAsc: "名称 (A-Z)",
-            sortNameDesc: "名称 (Z-A)",
-            sortPriceAsc: "价格 (低到高)",
-            sortPriceDesc: "价格 (高到低)",
-            sortSkuAsc: "SKU (升序)",
-            sortSkuDesc: "SKU (降序)",
-            priceRange: "价格范围",
-            minPrice: "最低",
-            maxPrice: "最高",
-            resetFilters: "重置筛选",
-            loadMore: "加载更多",
-            showing: "显示",
-            of: "/",
-            items: "项",
-            noDescription: "暂无描述。",
-            priceLabel: "金币",
-            iosLink: "iOS链接",
-            androidLink: "Android链接",
-            openIOS: "在iOS中打开",
-            openAndroid: "在Android中打开",
-            copy: "复制",
-            copied: "复制成功!",
-            copyFailed: "复制失败",
+            loadErrorHint: "请确认 plato_items.json 与 index.html 在同一目录。",
+            filters: "筛选", category: "类别", sortBy: "排序方式",
+            sortNameAsc: "名称 (A-Z)", sortNameDesc: "名称 (Z-A)",
+            sortPriceAsc: "价格 (低到高)", sortPriceDesc: "价格 (高到低)",
+            sortSkuAsc: "SKU (升序)", sortSkuDesc: "SKU (降序)",
+            priceRange: "价格范围", minPrice: "最低", maxPrice: "最高",
+            resetFilters: "重置筛选", loadMore: "加载更多",
+            showing: "显示", of: "/", items: "项",
+            noDescription: "暂无描述。", priceLabel: "金币",
+            iosLink: "iOS链接", androidLink: "Android链接",
+            openIOS: "在iOS中打开", openAndroid: "在Android中打开",
+            copy: "复制", copied: "复制成功!", copyFailed: "复制失败",
             noImage: "无图片",
             categories: { all: "全部", badges: "徽章", banners: "横幅", frames: "边框", bubbles: "气泡", bundles: "礼包", gameupgrades: "游戏升级", mods: "模组", pips: "点数", items: "物品", other: "其他" }
+        },
+        tr: {
+            appName: "Plato Finder", searchTitle: "Herhangi bir öğe ara",
+            searchPlaceholder: "Ada veya SKU'ya göre ara (ör. Rainbow Pop)...",
+            loading: "Veriler yükleniyor...", noResults: "Sonuç bulunamadı",
+            noResultsHint: "Farklı anahtar kelimeler deneyin veya filtreleri değiştirin.",
+            loadError: "Veriler yüklenemedi",
+            loadErrorHint: "plato_items.json dosyasının index.html ile aynı dizinde olduğundan emin olun.",
+            filters: "Filtreler", category: "Kategori", sortBy: "Sırala",
+            sortNameAsc: "Ad (A-Z)", sortNameDesc: "Ad (Z-A)",
+            sortPriceAsc: "Fiyat (Artan)", sortPriceDesc: "Fiyat (Azalan)",
+            sortSkuAsc: "SKU (Artan)", sortSkuDesc: "SKU (Azalan)",
+            priceRange: "Fiyat aralığı", minPrice: "Min", maxPrice: "Maks",
+            resetFilters: "Filtreleri sıfırla", loadMore: "Daha fazla",
+            showing: "Gösterilen", of: "/", items: "öğe",
+            noDescription: "Açıklama yok.", priceLabel: "jeton",
+            iosLink: "iOS Bağlantısı", androidLink: "Android Bağlantısı",
+            openIOS: "iOS'ta Aç", openAndroid: "Android'de Aç",
+            copy: "Kopyala", copied: "Başarıyla kopyalandı!", copyFailed: "Kopyalama başarısız",
+            noImage: "Görsel yok",
+            categories: { all: "Tümü", badges: "Rozetler", banners: "Bannerlar", frames: "Çerçeveler", bubbles: "Balonlar", bundles: "Paketler", gameupgrades: "Oyun Yükseltmeleri", mods: "Modlar", pips: "Puanlar", items: "Öğeler", other: "Diğer" }
         }
     };
 
-    // ==================== STATE ====================
     let currentLang = 'ar';
     let platoData = [];
     let allCategories = [];
@@ -501,12 +375,22 @@
     const modalBackdrop = document.getElementById('modalBackdrop');
     const modalPanel = document.getElementById('modalPanel');
 
-    // ==================== HELPERS ====================
     function getImagePath(imgName) {
         if (!imgName || imgName.trim() === '' || imgName.toLowerCase() === 'nan') return null;
         let cleanName = imgName.replace(/^\/+/, '');
         if (!cleanName.startsWith('iap/')) return 'iap/' + cleanName;
         return cleanName;
+    }
+
+    // اختيار صورة الكوينز حسب حجم المبلغ
+    function getCoinImage(price) {
+        const p = Number(price) || 0;
+        if (p < 1000) return 'iap/iap_platocoins_bundle_s.webp';
+        if (p < 10000) return 'iap/iap_platocoins_bundle_m.webp';
+        if (p < 100000) return 'iap/iap_platocoins_bundle_l.webp';
+        if (p < 1000000) return 'iap/iap_platocoins_bundle_xl_value.webp';
+        if (p < 10000000) return 'iap/iap_platocoins_bundle_xxl.webp';
+        return 'iap/iap_platocoins_bundle_xxxl.webp';
     }
 
     function getCategory(item) {
@@ -544,7 +428,6 @@
         document.documentElement.lang = lang;
     }
 
-    // ==================== TRANSLATIONS APPLY ====================
     function applyTranslations() {
         const tr = translations[currentLang];
         document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -563,14 +446,9 @@
         document.getElementById('modalPriceLabel').textContent = tr.priceLabel;
         renderCategoryChips();
         updateFilterCount();
-        if (platoData.length > 0) {
-            applyFilters();
-        } else if (emptyState.classList.contains('hidden') === false) {
-            // already showing empty - re-apply for translation
-        }
+        if (platoData.length > 0) applyFilters();
     }
 
-    // ==================== CATEGORIES ====================
     function computeAllCategories() {
         const set = new Set();
         platoData.forEach(item => set.add(getCategory(item)));
@@ -597,7 +475,6 @@
         });
     }
 
-    // ==================== FILTER COUNT ====================
     function updateFilterCount() {
         let count = 0;
         if (currentFilters.category !== 'all') count++;
@@ -608,10 +485,8 @@
         else { badge.classList.add('hidden'); }
     }
 
-    // ==================== FILTERING ====================
     function applyFilters() {
         let result = platoData.slice();
-
         if (currentFilters.query) {
             const q = currentFilters.query;
             result = result.filter(item =>
@@ -628,7 +503,6 @@
         if (currentFilters.maxPrice !== null) {
             result = result.filter(item => Number(item.price) <= currentFilters.maxPrice);
         }
-
         const sb = currentFilters.sortBy;
         result.sort((a, b) => {
             switch (sb) {
@@ -641,11 +515,9 @@
                 default: return 0;
             }
         });
-
         renderResults(result);
     }
 
-    // ==================== RENDER ====================
     function createCard(item) {
         const card = document.createElement('div');
         card.className = 'glass rounded-xl p-3 card-hover cursor-pointer fade-in border border-border hover:border-primary/30';
@@ -654,6 +526,7 @@
         const hasImage = imgPath !== null;
         const displayName = item.name || '';
         const displaySku = item.sku || '';
+        const coinPath = getCoinImage(item.price);
         card.innerHTML = `
             <div class="aspect-square rounded-lg bg-bg border border-border mb-3 overflow-hidden relative flex items-center justify-center">
                 ${hasImage ? `<img src="${imgPath}" alt="${displayName}" loading="lazy" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">` : ''}
@@ -665,7 +538,10 @@
             <h3 class="text-text font-semibold text-sm mb-1 truncate">${displayName}</h3>
             <div class="flex items-center justify-between gap-2">
                 <span class="text-textMuted text-xs font-mono bg-surface px-1.5 py-0.5 rounded border border-border truncate">SKU: ${displaySku}</span>
-                <span class="text-primary text-xs font-bold whitespace-nowrap">${Number(item.price || 0).toLocaleString()} 🪙</span>
+                <span class="text-primary text-xs font-bold whitespace-nowrap flex items-center gap-1">
+                    ${Number(item.price || 0).toLocaleString()}
+                    <img src="${coinPath}" alt="coins" class="coin-img" loading="lazy" onerror="this.style.display='none'">
+                </span>
             </div>
         `;
         return card;
@@ -685,16 +561,11 @@
         const frag = document.createDocumentFragment();
         slice.forEach(item => frag.appendChild(createCard(item)));
         resultsContainer.appendChild(frag);
-
         const tr = translations[currentLang];
         resultsInfo.classList.remove('hidden');
         resultsInfo.textContent = `${tr.showing} ${Math.min(visibleLimit, items.length)} ${tr.of} ${items.length} ${tr.items}`;
-
-        if (items.length > visibleLimit) {
-            loadMoreWrapper.classList.remove('hidden');
-        } else {
-            loadMoreWrapper.classList.add('hidden');
-        }
+        if (items.length > visibleLimit) loadMoreWrapper.classList.remove('hidden');
+        else loadMoreWrapper.classList.add('hidden');
     }
 
     function loadMore() {
@@ -709,7 +580,6 @@
         if (filteredItems.length <= visibleLimit) loadMoreWrapper.classList.add('hidden');
     }
 
-    // ==================== FILTERS UI ====================
     function toggleFilters() {
         const content = document.getElementById('filterContent');
         const chevron = document.getElementById('filterChevron');
@@ -734,13 +604,14 @@
         applyFilters();
     }
 
-    // ==================== MODAL ====================
     function openModal(item) {
         const tr = translations[currentLang];
         document.getElementById('modalTitle').textContent = item.name || '';
         document.getElementById('modalSku').textContent = item.sku || '';
         document.getElementById('modalDescription').textContent = item.description || tr.noDescription;
         document.getElementById('modalPrice').textContent = Number(item.price || 0).toLocaleString();
+        document.getElementById('modalCoinImage').src = getCoinImage(item.price);
+        document.getElementById('modalCoinImage').style.display = 'inline-block';
         const imgPath = getImagePath(item.img1);
         const modalImg = document.getElementById('modalImage');
         const modalFallback = document.getElementById('modalFallback');
@@ -786,7 +657,6 @@
         setTimeout(() => toast.classList.add('opacity-0', 'translate-y-10'), 2000);
     }
 
-    // ==================== DATA LOADING ====================
     async function loadData() {
         try {
             const res = await fetch('plato_items.json');
@@ -806,7 +676,6 @@
         }
     }
 
-    // ==================== EVENT LISTENERS ====================
     let searchTimeout;
     searchInput.addEventListener('input', (e) => {
         clearTimeout(searchTimeout);
@@ -850,7 +719,6 @@
     modalBackdrop.addEventListener('click', closeModal);
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal(); });
 
-    // ==================== INIT ====================
     (function init() {
         try {
             const saved = localStorage.getItem('plato_lang');
